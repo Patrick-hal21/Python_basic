@@ -180,7 +180,7 @@ if num_passer % boat_capacity == 0:
 else:
     num_trip = num_passer // boat_capacity + 1
 
-print("You need ", num_trip, " trip to transport ", num_passer, " passengers.)
+print("You need", num_trip, "trips to transport", num_passer, "passengers.)
 print()
 
 # Ex : 15
