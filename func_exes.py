@@ -84,7 +84,9 @@ def GetScore():
             if new_score >= 0 and new_score <= 100:
                 score_list.append(new_score)
             else:
-                continue
+                # using continue made it removed 1 score so that is imbalance with inputted number of scores
+                # appending  0 makes sense to punish for inputing invalid score more than two times
+                score_list.append(0)
 '''
 def Total(sco_dict):
     total = {}
