@@ -69,7 +69,7 @@ def GetScore():
     for i in range(1, num_stu+1):
         if i not in scores_dict.keys():
             print("==> For student", i)
-            scores_dict["Student "+ str(i)] = [int(input("Enter your score (0-100): ")) for a in range(num_sco)]
+            scores_dict["Student "+ str(i)] = [int(input("Enter student's score (0-100): ")) for a in range(num_sco)]
     return scores_dict, num_stu, num_sco
     # following code will make inputted score in range(0-100) ,and 
     # entering score is limited to 2 attempt to make it valid which is in range(0-100)
@@ -87,6 +87,15 @@ def GetScore():
                 # using continue made it removed 1 score so that is imbalance with inputted number of scores
                 # appending  0 makes sense to punish for inputing invalid score more than two times
                 score_list.append(0)
+'''
+    # following code is more shorter than code used in GetScore()
+'''
+    def GetScore():
+        num_stu = int(input("Enter number of students : "))
+        num_sco = int(input("Number of scores: "))
+        scores_dict = {"Student "+str(i):[int(input("Enter student's score ")) for a in range(num_sco)] for i in range(1, num_stu+1)}
+        return scores_dict, num_stu, num_sco
+print(GetScore())
 '''
 def Total(sco_dict):
     total = {}
