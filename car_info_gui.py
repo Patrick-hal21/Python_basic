@@ -2,7 +2,8 @@ from tkinter import *
 from tkinter import ttk  # for Treeview
 from tkinter import filedialog
 from tkinter import messagebox
-from PIL import ImageTk, Image # to add image in About us window, I will use this for .jpg only
+from PIL import ImageTk, Image # to manipulate images
+import os
 import csv
 
 class EVcars():
@@ -13,13 +14,16 @@ class EVcars():
         icon = PhotoImage(file="./Project/fourninjas with python.png")
         self.window.title("Ninjas EV Trading System")
         self.window.iconphoto(True, icon) #set True to set that icon in all self.window & its descendents
-        self.window.geometry("400x400")
+        self.window.geometry("800x600")
         self.window.config(bg="lightblue")
         # created file, load_btn to load file and store it to use in other windows without repeating load_file 
         self.file = None 
         self.datas = None
 
-        self.noti_labl = Label(self.window, text="Please load file first!", bg="black", fg="white")
+        self.hist_lst = [] # to store what we type in entry as list # modified place
+        self.val_lst = [] # I moved it here
+
+        self.noti_labl = Label(self.window, text="Please load file first!", bg="black", fg="white", font=('', 10, 'bold'))
         self.noti_labl.pack(side=TOP, pady=20, ipadx=5, ipady=5)
         self.load_btn = Button(self.window, relief="raised", text="Load file",activebackground="darkblue", command=self.load_file, bg="blue", fg="white", font=('Consolas', 10))
         self.load_btn.pack(pady=5,ipadx=5, ipady=5) 
@@ -32,12 +36,9 @@ class EVcars():
         Button(self.window, text="Quit",activeforeground="red",relief="raised", bg="blue", fg="white", font=('Consolas', 10), command=self.ask_confirm).pack(anchor=S, ipadx=5, pady=10)
         Label(self.window, text="Presented by Team-3 (The Python Ninjas)", font=2, bg="lightblue").pack(side="bottom", anchor=S+W)
 
-        self.hist_lst = [] # to store what we type in entry as list # modified place
-        self.val_lst = [] # I moved it here
         self.createWidgets() #top menu
         self.window.mainloop()
-
-    
+        
     def ask_confirm(self):
         response = messagebox.askokcancel("Conirmation", "Are you sure to quit?")
         if response:
@@ -46,7 +47,7 @@ class EVcars():
             pass
 
     def load_file(self):
-    
+
         file = filedialog.askopenfilename(
         initialdir="C:/Users/MainFrame/Desktop/", 
         title="Open file", 
@@ -72,8 +73,12 @@ class EVcars():
         self.menuBar = Menu(top)
         top.config(menu=self.menuBar)
         self.subMenu = Menu(self.menuBar, tearoff=0)
+
         self.menuBar.add_cascade(label="About",activebackground="blue", menu=self.subMenu)
-        self.subMenu.add_command(label="Team Logo(example)",activebackground="blue", command=self.aboutUs) 
+        self.subMenu.add_command(label="Team Logo(example)",activebackground="blue", command=self.aboutUs)
+
+        self.menuBar.add_cascade(label="Info", activebackground="blue", command=self.show_cars_info_ico) 
+        
 
 
     def aboutUs(self):
@@ -82,6 +87,9 @@ class EVcars():
         # img = ImageTk.PhotoImage(Image.open("./Project/python_ninjas_logo2.jpg")) #1st way this needs to import PIL 
         img = PhotoImage(file="./Project/fourninjas with python.png") #2nd way , .png can be used in both 1 and 2
         # Display the image in a Label
+        # self.menuBar.entryconfig("Home", state="normal")
+        # self.menuBar.entryconfig("About", state="disabled")
+        # self.menuBar.entryconfig("Info", state="normal")
         img_label = Label(about, image=img)
         img_label.pack()
         about.mainloop()
@@ -103,12 +111,12 @@ class EVcars():
             self.data_info.pack(pady=5)
 
             # tree view shows columnwide so I created yscroll only
-
             self.tree = ttk.Treeview(show_window, show="headings")
             self.tree.pack(padx=20, pady=20, fill="both", expand=True)
             yscroll = Scrollbar(self.tree, relief="sunken", orient='vertical', command=self.tree.yview)
             yscroll.pack(side=RIGHT, fill=Y)
             self.tree.config(yscrollcommand=yscroll.set)
+            
             # set heading row color
             style = ttk.Style()
             style.theme_use('default')  # try with different theme ('clam', etc..)
@@ -133,13 +141,18 @@ class EVcars():
                 for col in header:
                     self.tree.heading(col, text=col)
                     self.tree.column(col, width=100)
-                    
+                
+                # for row colors
+                self.tree.tag_configure("oddrow", background="lightblue")
+                self.tree.tag_configure("evenrow", background="blanched almond")
+
                 count = 0
-                for row in csv_reader:
-                    self.tree.insert("", "end", values=row)
+                for i, row in enumerate(csv_reader):
+                    tags = "evenrow" if i % 2 == 0 else "oddrow"
+                    self.tree.insert("", "end", values=row, tag=tags)
                     count += 1 # to count rows
                     if row[0] not in brands:
-                        brands.append(row[0])
+                        brands.append(row[0]) # can  also use this line only and later use set() to remove duplicates
                 # use config to add arguments
                 self.data_info.config(text=f"There are {count} {self.__class__.__name__} with {len(brands)} different types.")
 
@@ -153,10 +166,11 @@ class EVcars():
             self.info_labl.config(text="")
             self.info_win = Toplevel(self.window)
             self.info_win.title("Add & Explore")
+            self.info_win.geometry("800x600")
 
-            n = round(len(self.datas[0])/2)
-            fst_half = self.datas[0][:n+1]  # to display more in 1st half
-            scd_half = self.datas[0][n+1:]
+            self.num = round(len(self.datas[0])/2)
+            self.fst_half = self.datas[0][:self.num+1]  # to display more in 1st half
+            self.scd_half = self.datas[0][self.num+1:]
 
             frame1 = Frame(self.info_win, background="lightblue",borderwidth=10)
             frame1.grid(row=0, rowspan=9, column=0, columnspan=20, padx=10, pady=20, ipadx=100)
@@ -164,15 +178,15 @@ class EVcars():
             # value = StringVar()
             
 
-            for i in range(len(fst_half)):
-                Label(frame1, text=f"{fst_half[i]} : ",background="lightblue").grid(row=i, column=0, padx= 20,  pady=5, sticky=W)
+            for i in range(len(self.fst_half)):
+                Label(frame1, text=f"{self.fst_half[i]} : ",background="lightblue").grid(row=i, column=0, padx= 20,  pady=5, sticky=W)
                 e = Entry(frame1, font=("Consolas", 12))
                 e.delete(0, END) # <----- 
                 e.grid(row=i, column=1, columnspan=5, pady=5, ipadx=5) # row ends at 7
                 self.entries.append(e)
 
-            for i in range(len(scd_half)):
-                Label(frame1, text=f"{scd_half[i]} : ", background="lightblue").grid(row=i, column=10, padx=30, pady=5, sticky=W)
+            for i in range(len(self.scd_half)):
+                Label(frame1, text=f"{self.scd_half[i]} : ", background="lightblue").grid(row=i, column=10, padx=30, pady=5, sticky=W)
                 e = Entry(frame1, font=("Consolas", 12))
                 e.grid(row=i, column=11, columnspan=5, pady=5, ipadx=5)
                 self.entries.append(e)
@@ -263,7 +277,8 @@ class EVcars():
             self.add_Info()
         else:
             self.info_win.destroy()
-            self.next_Catego()
+            self.next_Catego()  
+
 
         # elif i == 3:
         #     self.edit_Info()
@@ -323,34 +338,35 @@ class EVcars():
     def next_Catego(self):
         self.next_cat = Toplevel(self.window)
         self.next_cat.title("Edit, Delete..")
+        self.next_cat.geometry("800x600")
         # here I add menu # (draft)
         self.menu2 = Menu(self.next_cat)
         self.next_cat.config(menu=self.menu2)
         self.menu2.add_cascade(label="Edit", activebackground="blue", command=self.menu_edit)
         self.menu2.add_cascade(label="Delete", activebackground="blue", command=self.menu_delete)
 
-        messagebox.showinfo("Information", f"Be sure to fill *required datas({self.datas[0][0]}, {self.datas[0][1]}) in which {self.datas[0][1]} name must be price.") # try useage
+        # messagebox.showinfo("Information", f"Be sure to fill *required datas({self.datas[0][0]}, {self.datas[0][1]}) in which {self.datas[0][1]} name must be price.") # test useage
 
-        self.frame3 = Frame(self.next_cat, background="lightblue", width=500, borderwidth=5)
-        self.frame3.grid(row=2, column=5, columnspan=20, rowspan=30, ipadx=100, ipady=100)
+        # self.frame3 = Frame(self.next_cat, background="lightblue", width=500, borderwidth=5)
+        # self.frame3.grid(row=2, column=5, columnspan=20, rowspan=30, ipadx=100, ipady=100)
 
-        self.intro_labl = Label(self.frame3, text="Please fill both of these!")
-        self.labl1 = Label(self.frame3, text=f"{self.datas[0][0]}: ", pady=5, font=5) 
-        self.ent1 = Entry(self.frame3, takefocus="",  font=("Consolas", 12), state="normal")
+        # self.intro_labl = Label(self.frame3, text="Please fill both of these!")
+        # self.labl1 = Label(self.frame3, text=f"{self.datas[0][0]}: ", pady=5, font=5) 
+        # self.ent1 = Entry(self.frame3, takefocus="",  font=("Consolas", 12), state="normal")
         
-        self.labl2 = Label(self.frame3, text=f"{self.datas[0][1]}: ", pady=5, font=5)
-        self.ent2 = Entry(self.frame3, font=("Consolas", 12), state="normal")
+        # self.labl2 = Label(self.frame3, text=f"{self.datas[0][1]}: ", pady=5, font=5)
+        # self.ent2 = Entry(self.frame3, font=("Consolas", 12), state="normal")
 
-        self.cont_btn = Button(self.frame3, relief="sunken", activebackground="blue", text="Continue", command=self.show_up)
-        self.back_btn2 = Button(self.frame3, relief="sunken", activebackground="blue", text="<< Back", command=lambda: [self.next_cat.destroy(), self.explore_Info()])
+        # self.cont_btn = Button(self.frame3, relief="sunken", activebackground="blue", text="Continue", command=self.show_up)
+        # self.back_btn2 = Button(self.frame3, relief="sunken", activebackground="blue", text="<< Back", command=lambda: [self.next_cat.destroy(), self.explore_Info()])
 
-        self.intro_labl.grid(row=4, column=3,sticky=S, pady=10, padx=10)
-        self.labl1.grid(row=5, column=2, pady=10, padx=10, sticky=W)
-        self.ent1.grid(row=5, column= 3, padx=10, pady=10)
-        self.labl2.grid(row=7, column=2, pady=10, padx=10, sticky=W)
-        self.ent2.grid(row=7, column= 3, padx=10, pady=10)
-        self.back_btn2.grid(row=9, column=1, padx=10, pady=10)
-        self.cont_btn.grid(row=9, column=3, padx=10, pady=10)
+        # self.intro_labl.grid(row=4, column=3,sticky=S, pady=10, padx=10)
+        # self.labl1.grid(row=5, column=2, pady=10, padx=10, sticky=W)
+        # self.ent1.grid(row=5, column= 3, padx=10, pady=10)
+        # self.labl2.grid(row=7, column=2, pady=10, padx=10, sticky=W)
+        # self.ent2.grid(row=7, column= 3, padx=10, pady=10)
+        # self.back_btn2.grid(row=9, column=1, padx=10, pady=10)
+        # self.cont_btn.grid(row=9, column=3, padx=10, pady=10)
 
         self.next_cat.mainloop()
 
@@ -421,7 +437,7 @@ class EVcars():
     def find_edit(self): # use in button command
         
         # self.canvas1.destroy() 
-        self.canvas1.grid_forget() # thinking I should use this now and later, but I use this and grid again its position is just stivky in W
+        self.canvas1.grid_forget() # thinking I should use this now and later(it causes high momory usage), but I use this and grid again its position is just stivky in W
         self.check_var = [c.get() for c in self.vars if c.get() != 0] # this contains index to search
 
         self.entries.clear() # clear the created list if it needs to use in descendent methods
@@ -481,7 +497,8 @@ class EVcars():
         # first I decided to disable the current menu button(mean I was in that menu)
         self.menu2.entryconfig("Delete", state="disabled")
         self.menu2.entryconfig("Edit", state="normal")
-        
+        # self.menu2.update_idletasks()
+
         response = messagebox.askquestion("How", "Do you want to delete column value(s)?")
         if response:
             self.delete_val()
@@ -496,10 +513,9 @@ class EVcars():
                 else:
                     self.menu_edit()
 
-        # self.menu2.update_idletasks()
         
     def delete_val(self):
-        messagebox.showinfo("Information", f"Be sure to fill *required datas({self.datas[0][0]}, {self.datas[0][1]}) in which {self.datas[0][1]} name must be price.") # try useage
+        messagebox.showinfo("Information", f"Be sure to fill *required datas({self.datas[0][0]}, {self.datas[0][1]}) in which {self.datas[0][1]} name must be precise.") # try useage
 
         # I use same variable names as in next_cat(menu_edit) cuz we will only use one at a time,  can also use diff variable names in this
         self.frame3 = Frame(self.next_cat, background="lightblue", width=500, borderwidth=5)
@@ -508,12 +524,22 @@ class EVcars():
         self.intro_labl = Label(self.frame3, text="Please fill both of these!")
         self.labl1 = Label(self.frame3, text=f"{self.datas[0][0]}: ", pady=5, font=5) 
         self.ent1 = Entry(self.frame3, takefocus="",  font=("Consolas", 12), state="normal")
-        
+        self.ent1.bind("<Button-3>", lambda event: self.popup_fill_val(0, event))
+
         self.labl2 = Label(self.frame3, text=f"{self.datas[0][1]}: ", pady=5, font=5)
         self.ent2 = Entry(self.frame3, font=("Consolas", 12), state="normal")
+        self.ent2.bind("<Button-3>", lambda event: self.popup_fill_val(1, event, self.ent1.get()))
 
-        self.cont_btn = Button(self.frame3, relief="sunken", activebackground="blue", text="Continue", command=self.show_up)
-        self.back_btn2 = Button(self.frame3, relief="sunken", activebackground="blue", text="<< Back", command=lambda: [self.frame3.grid_forget(), self.explore_Info()])
+        self.cont_btn = Button(self.frame3, relief="raised", activebackground="blue", text="Continue", command=self.show_up)
+        self.back_btn2 = Button(self.frame3, relief="raised", activebackground="blue", text="<< Back", command=lambda: [self.frame3.grid_forget(), self.explore_Info()])
+
+        self.intro_labl.grid(row=4, column=3,sticky=S, pady=10, padx=10)
+        self.labl1.grid(row=5, column=2, pady=10, padx=10, sticky=W)
+        self.ent1.grid(row=5, column= 3, padx=10, pady=10)
+        self.labl2.grid(row=7, column=2, pady=10, padx=10, sticky=W)
+        self.ent2.grid(row=7, column= 3, padx=10, pady=10)
+        self.back_btn2.grid(row=9, column=1, padx=10, pady=10)
+        self.cont_btn.grid(row=9, column=3, padx=10, pady=10)
 
 
 
@@ -522,6 +548,144 @@ class EVcars():
 
     def delete_file(self):
         pass
+    
+    # for popup fill
+    def set_value(self, value, index):
+        if index == 0:
+            self.ent1.delete(0, END)
+            self.ent1.insert(0, value)
+        else:
+            self.ent2.delete(0, END)
+            self.ent2.insert(0, value)
+
+    def popup_fill_val(self, index, event, ent1_val=None): # it was a bit messy cuz I wrapped some funcs in it
+        # self.fill_val = None
+        # if index == 0:
+        self.menu3 = Menu(self.next_cat, tearoff=0)
+        if ent1_val:
+            self.fill_val = [row[1] for row in self.datas if ent1_val in row]
+        else:
+            self.fill_val=set(row[index] for row in self.datas[1:])  # I used set() to get unduplicated data
+
+        for value in self.fill_val:
+            self.menu3.add_command(label=value, command=lambda v=value, i=index: self.set_value(v, i))
+
+        try:
+            self.menu3.tk_popup(event.x_root, event.y_root)
+        finally:
+            self.menu3.grab_release()
+
+
+    def show_cars_info_ico(self):
+        if self.datas:
+            self.info_labl.config(text="")
+            self.root = Toplevel()
+            self.root.geometry("800x600")
+        
+            self.cars_img = ["./Project/brands/bmw.png", "./Project/brands/nissan.png", "./Project/brands/tesla.png", "./Project/brands/ford.png", "./Project/brands/rolls-royce.png", "./Project/brands/mercedes.png", "./Project/brands/toyota.png", "./Project/brands/audi.png"]
+
+            self.ico_frame = Frame(self.root, background="skyblue", relief="raised")
+            self.ico_frame.grid(row=2, column=5, columnspan=10, rowspan=10, ipadx=10, ipady=170, padx=150, sticky=N)
+
+            names = [name.split("/")[-1][:-4].upper() for name in self.cars_img]
+            images = [PhotoImage(file=image) for image in self.cars_img]
+
+            for i, car in enumerate(images):
+                label =Label(self.ico_frame, image=car, background="skyblue", relief="solid", cursor="hand2")
+                label.grid(row=i//3, column= i%3, padx=10, pady=5, ipadx=10, ipady=40)
+                label.bind("<Button-1>", lambda event,a=i: self.show_icon(names[a]))
+            self.root.mainloop()
+        else:
+            self.info_labl.config(text="Your data is empty.\n File is not loaded yet!")
+
+    def show_icon(self,name):
+        self.ico_frame.grid_forget()
+        models_count = len([row[1] for row in self.datas[1:] if name in row])
+
+        self.ico_back = Button(self.root, text="<< Back", bg="blue",fg="white", command=lambda: [self.root.destroy(), self.show_cars_info_ico()])
+        self.ico_back.grid(row=1, column=0, padx=5, pady=5, ipadx=5, ipady=5)
+
+        self.brand_name = Label(self.root, text=f"{name} ({models_count})" , font=('', 12, 'bold'))
+        self.brand_name.grid(row=1, column=7, padx=5, pady=5, sticky=N) 
+
+        path = "./Project/models/" + name.lower() +"/"
+        # print(os.path.exists(path))
+        self.load_images(path)
+        self.img_counter = 0
+        self.image_display() # 6/3/24
+
+    def image_display(self): # 6/3/24
+        self.model = [row for row in self.datas[1:] if self.img_modl[self.img_counter][1] in row] # [[]]
+
+        # Button(self.root, text=" < ", font=('', 10, 'bold'), background="skyblue", command=self.prev_ico).grid(row=2, column=4, padx=5, pady=5, ipadx=5, ipady=5)
+        # Button(self.root, text=" > ", font=('', 10, 'bold'), background="skyblue", command=self.next_ico).grid(row=2, column=7, padx=5, pady=5, ipadx=5, ipady=5, sticky=W)
+
+        self.ico_frame1 = Frame(self.root, width=50, height=20, background="skyblue", borderwidth=2, relief="solid")
+        self.ico_frame1.grid(row=2, column=7, padx=50, pady=10, sticky=W)
+        
+        self.ico = Label(self.ico_frame1, image=self.img_modl[self.img_counter][0], background="skyblue", cursor="hand2")
+        self.ico.grid(row=1, column=7, pady=10)
+        self.ico.bind("<Button-1>", lambda event, a=self.img_modl[self.img_counter][1]: self.img_info(a))
+ 
+        Button(self.ico_frame1, text=" < ", font=('', 15, 'bold'), activebackground="skyblue", command=self.prev_ico).grid(row=2, column=0, padx=5, pady=5, ipadx=5, ipady=5, sticky=W)
+        
+        self.ico_name = Label(self.ico_frame1, text=f"{self.img_counter+1}.{self.img_modl[self.img_counter][1]}\
+                               ( ${int(self.model[0][-1]):,.0f} )", background="skyblue", font=7)
+        self.ico_name.grid(row=2, column=7) 
+
+        Button(self.ico_frame1, text=" > ", font=('', 15, 'bold'), activebackground="skyblue", command=self.next_ico).grid(row=2, column=8, padx=5, pady=5, ipadx=5, ipady=5, sticky=E)
+
+        self.txt_frame = Frame(self.root, width=80, borderwidth=2, relief="solid", background="skyblue")
+        self.txt_frame.grid(row=5, column=5, padx= 10, ipadx=20, sticky=S)
+
+        for i, column in enumerate(self.datas[0][1:7]):
+            Label(self.txt_frame, text=column, justify='left',background="skyblue").grid(row=i , column=0, sticky=W, padx=5, pady=5)
+            Label(self.txt_frame, text=f"- {self.model[0][i]}", justify='left',background="skyblue", wraplength=100).grid(row=i, column=1, sticky=W, padx=20,pady=5)
+          
+        for i, column in enumerate(self.datas[0][7:]):
+            Label(self.txt_frame, text=column, background="skyblue").grid(row=i, column=3, sticky=E, padx=20, pady=5)
+            Label(self.txt_frame, text=f"- {self.model[0][7:][i]}", justify='left', background="skyblue").grid(row=i, column=4, sticky=W, pady=5)
+        
+        self.txt_frame.grid_forget()
+        self.root.mainloop()
+
+    def img_info(self, model):
+        self.txt_frame.grid(row=4, column=7, ipadx=50)
+
+    def next_ico(self):
+
+        self.img_counter += 1
+        if self.img_counter == len(self.img_modl):
+            self.img_counter = 0
+
+        self.ico_frame.destroy()
+        self.txt_frame.destroy()
+        self.image_display() # 6/3/24
+        
+
+    def prev_ico(self):
+        if 0 < self.img_counter < len(self.img_modl):
+            self.img_counter -= 1
+        else:
+            self.img_counter = len(self.img_modl) - 1
+
+        self.ico_frame.destroy()
+        self.txt_frame.destroy()
+        self.image_display() # 6/3/24
+        # print(self.img_counter)
+
+    def load_images(self, path):
+        images_dir = os.listdir(path)
+        images = []
+        model_names = []
+        for image in images_dir:
+            # I didn't use this for now yet, please test it
+            Image.open(path + image).resize((350, 230)).save(path+image) # to automatically resize but you will need PIL module
+            
+            images.append(PhotoImage(file=path+image))
+            model_names.append(image[:-4])
+        self.img_modl = [*zip(images, model_names)]
+
 
     def save_datas(self):
         with open(self.file, 'w', newline='') as f:
