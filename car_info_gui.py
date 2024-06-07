@@ -20,24 +20,48 @@ class EVcars():
         self.file = None 
         self.datas = None
 
-        self.hist_lst = [] # to store what we type in entry as list # modified place
+        self.hist_dict = {} # to store what we type in entry as list # modified place
         self.val_lst = [] # I moved it here
-
-        self.noti_labl = Label(self.window, text="Please load file first!", bg="black", fg="white", font=('', 10, 'bold'))
-        self.noti_labl.pack(side=TOP, pady=20, ipadx=5, ipady=5)
-        self.load_btn = Button(self.window, relief="raised", text="Load file",activebackground="darkblue", command=self.load_file, bg="blue", fg="white", font=('Consolas', 10))
-        self.load_btn.pack(pady=5,ipadx=5, ipady=5) 
-        Button(self.window, text="Show Cars Info",activebackground="darkblue",relief="raised", command=self.show_Info, bg="blue", fg="white", font=('Consolas', 10)).pack(pady=20, ipadx=5, ipady=5)
-        Button(self.window, text="More..",activebackground="darkblue",relief="raised", command=self.explore_Info, bg="blue", fg="white", font=('Consolas', 10)).pack(pady=20, ipadx=5, ipady=5)
-
-        self.info_labl = Label(self.window, text='', fg="red", bg="lightblue") #I wanted to show this info in messagebox , but I didn't want to change the code
-        self.info_labl.pack()
         
-        Button(self.window, text="Quit",activeforeground="red",relief="raised", bg="blue", fg="white", font=('Consolas', 10), command=self.ask_confirm).pack(anchor=S, ipadx=5, pady=10)
-        Label(self.window, text="Presented by Team-3 (The Python Ninjas)", font=2, bg="lightblue").pack(side="bottom", anchor=S+W)
+        self.window.columnconfigure(0, weight=1)
+        self.window.rowconfigure(0, weight=1)
 
+        # self.main_frame = Frame(self.window)
+        # self.main_frame.grid(row=0, column=0, sticky="nsew")
+        # self.main_frame.columnconfigure(0, weight=1)
+        # self.main_frame.rowconfigure(0, weight=1)
+        
+        self.start_page()
         self.createWidgets() #top menu
+        self.menuBar.entryconfig(" Home ", state=DISABLED)
         self.window.mainloop()
+
+    def start_page(self):
+
+        self.start_frame = Frame(self.window, bg="lightblue")
+        # self.start_frame.pack(fill=BOTH, expand=True)
+        self.start_frame.grid(row=0, column=0, sticky="nsew")
+
+        self.start_frame.columnconfigure(0, weight=1)
+        self.start_frame.rowconfigure(6, weight=1)
+
+        self.noti_labl = Label(self.start_frame, text="Please load file first!", bg="black", fg="white", font=('', 10, 'bold'))
+        self.noti_labl.grid(row=0, column=0, columnspan=2, pady=20, ipadx=5, ipady=5)
+
+        self.load_btn = Button(self.start_frame, relief="raised", text="Load file", activebackground="darkblue", command=self.load_file, bg="blue", fg="white", font=('Consolas', 10))
+        self.load_btn.grid(row=1, column=0, pady=5, ipadx=5, ipady=5)
+
+        Button(self.start_frame, text="Show Cars Info", activebackground="darkblue", relief="raised", command=self.show_Info, bg="blue", fg="white", font=('Consolas', 10)).grid(row=2, column=0, pady=20, ipadx=5, ipady=5)
+
+        Button(self.start_frame, text="More..", activebackground="darkblue", relief="raised", command=self.explore_Info, bg="blue", fg="white", font=('Consolas', 10)).grid(row=3, column=0, pady=20, ipadx=5, ipady=5)
+
+        self.info_labl = Label(self.start_frame, text='', fg="red", bg="lightblue")
+        self.info_labl.grid(row=4, column=0)  # Adjust row as needed
+
+        Button(self.start_frame, text="Quit", activeforeground="red", relief="raised", bg="blue", fg="white", font=('Consolas', 10), command=self.ask_confirm).grid(row=5, column=0, pady=10)
+
+        Label(self.start_frame, text="Presented by Team-3 (The Python Ninjas)", font=2, bg="lightblue").grid(row=6, column=0, sticky='sw')
+
         
     def ask_confirm(self):
         response = messagebox.askokcancel("Conirmation", "Are you sure to quit?")
@@ -74,10 +98,11 @@ class EVcars():
         top.config(menu=self.menuBar)
         self.subMenu = Menu(self.menuBar, tearoff=0)
 
-        self.menuBar.add_cascade(label="About",activebackground="blue", menu=self.subMenu)
+        self.menuBar.add_cascade(label=" About ",activebackground="blue", menu=self.subMenu)
         self.subMenu.add_command(label="Team Logo(example)",activebackground="blue", command=self.aboutUs)
 
-        self.menuBar.add_cascade(label="Info", activebackground="blue", command=self.show_cars_info_ico) 
+        self.menuBar.add_cascade(label=" Home ", command=self.start_frame.tkraise)
+        self.menuBar.add_cascade(label=" Info ", activebackground="blue", command=self.show_cars_info_ico) 
         
 
 
@@ -87,31 +112,37 @@ class EVcars():
         # img = ImageTk.PhotoImage(Image.open("./Project/python_ninjas_logo2.jpg")) #1st way this needs to import PIL 
         img = PhotoImage(file="./Project/fourninjas with python.png") #2nd way , .png can be used in both 1 and 2
         # Display the image in a Label
-        # self.menuBar.entryconfig("Home", state="normal")
-        # self.menuBar.entryconfig("About", state="disabled")
-        # self.menuBar.entryconfig("Info", state="normal")
+        self.menuBar.entryconfig(" Home ", state="normal")
         img_label = Label(about, image=img)
         img_label.pack()
         about.mainloop()
 
+
+    # Show all cars info frame 
     def show_Info(self):
         
         if self.file:
-            self.info_labl.config(text="")
-            show_window = Toplevel(self.window)
-            show_window.title("All Cars Info ")
-            show_window.geometry("500x500")
+            # self.info_labl.config(text="")
+            # show_window = Toplevel(self.window)
+            # show_window.title("All Cars Info ")
+            # show_window.geometry("800x600")
+            # show_window.columnconfigure(0, weight=1)
+            # show_window.rowconfigure(0, weight=1)
+            self.menuBar.entryconfig(" Home ", state = NORMAL)
 
-            back_btn = Button(show_window, relief="sunken", text="<< Back", bg="blue", fg="white", command=show_window.destroy)
-            open_btn = Button(show_window, relief="sunken", text="Show datas", bg="blue", fg="white", command=self.display_info)
+            self.display_frame = Frame(self.window)
+            self.display_frame.grid(row=0, column=0, sticky="nsew")
+
+            back_btn = Button(self.display_frame, relief="sunken", text="<< Back", bg="blue", fg="white", command=lambda: [self.start_frame.tkraise(), self.display_frame.destroy()])
+            open_btn = Button(self.display_frame, relief="sunken", text="Show datas", bg="blue", fg="white", command=self.display_info)
             back_btn.pack(anchor=W, padx=10, pady=10)
             open_btn.pack(padx=10, pady=10)
 
-            self.data_info = Label(show_window, text="")
+            self.data_info = Label(self.display_frame, text="")
             self.data_info.pack(pady=5)
 
             # tree view shows columnwide so I created yscroll only
-            self.tree = ttk.Treeview(show_window, show="headings")
+            self.tree = ttk.Treeview(self.display_frame, show="headings")
             self.tree.pack(padx=20, pady=20, fill="both", expand=True)
             yscroll = Scrollbar(self.tree, relief="sunken", orient='vertical', command=self.tree.yview)
             yscroll.pack(side=RIGHT, fill=Y)
@@ -121,7 +152,7 @@ class EVcars():
             style = ttk.Style()
             style.theme_use('default')  # try with different theme ('clam', etc..)
             style.configure('Treeview.Heading', background="skyblue")
-            show_window.mainloop()
+            # show_window.mainloop()
         
         else:
             self.info_labl.config(text="File is not loaded yet!\nPlease load it!", fg="red")
@@ -159,21 +190,35 @@ class EVcars():
         except Exception as e:
             self.data_info.config(text=f"{e}",fg="red")
 
-    # window 2  
+    # Frame 2  
     def explore_Info(self):
 
         if self.file:
-            self.info_labl.config(text="")
-            self.info_win = Toplevel(self.window)
-            self.info_win.title("Add & Explore")
-            self.info_win.geometry("800x600")
+            # self.info_labl.config(text="")
+            # self.info_win = Toplevel(self.window)
+            # self.info_win.title("Add & Explore")
+            # self.info_win.geometry("800x600")
+            self.menuBar.entryconfig(" Home ", state=NORMAL)
+
+            # self.explore_frame = Frame(self.window)
+            # self.explore_frame.grid(row=0, column=0, sticky="nsew")
+            # #self.explore_frame.tkraise # optional
+
+            # # self.info_win.columnconfigure(0, weight=1)
+            # # self.info_win.rowconfigure(0, weight=1)
+            # self.explore_frame.columnconfigure(0, weight=0)
 
             self.num = round(len(self.datas[0])/2)
             self.fst_half = self.datas[0][:self.num+1]  # to display more in 1st half
             self.scd_half = self.datas[0][self.num+1:]
 
-            frame1 = Frame(self.info_win, background="lightblue",borderwidth=10)
-            frame1.grid(row=0, rowspan=9, column=0, columnspan=20, padx=10, pady=20, ipadx=100)
+            self.search_frame = Frame(self.window)
+            self.search_frame.grid(row=0, column=0, sticky="nsew")
+            self.search_frame.columnconfigure(0, weight=1)
+
+
+            frame1 = Frame(self.search_frame, background="lightblue",borderwidth=10)
+            frame1.grid(row=0, rowspan=9, column=0, padx=10, pady=20, columnspan=20, ipadx=100)#,sticky="we")#, 
             self.entries = []
             # value = StringVar()
             
@@ -195,38 +240,49 @@ class EVcars():
             # self.hist_lst = [] # to store what we type in entry as list   # origin (we moved them cuz destroying widget also delete them)
 
             # self.option_lst = ["<< Back", "Search", "Add", "Edit", "*Delete", "**Delete All"] 1st usage
+            btn_frame = Frame(self.search_frame)
+            btn_frame.grid(row=10, column=0, sticky="ns")
+
             self.option_lst = ["<< Back", "Search", "Add", "Next >>"]
             self.btns = [] ## not used yet
             for i, opt in enumerate(self.option_lst):
-                btn = Button(self.info_win, relief="sunken", activebackground="blue", text=opt, command=lambda a=i: self.process_button(a)) # I will go with i instead of opt
-                btn.grid(row=9, column=3+i*2, columnspan=3, padx=15, pady=5, ipadx=5, ipady=5)
+                btn = Button(btn_frame, relief="sunken", activebackground="blue", text=opt, command=lambda a=i: self.process_button(a)) # I will go with i instead of opt
+                btn.grid(row=1, column=3+i*2, padx=20, pady=5, ipadx=10, ipady=5, sticky="we")
                 self.btns.append(btn)
 
-            self.opt_labl=Label(self.info_win, text="")
-            self.opt_labl.grid(row=11, column=1)
-            self.show_txt = Entry(self.info_win, borderwidth=2, font=("Consolas", 12))
-            self.show_txt.grid(row=11, rowspan=2, column=4, columnspan=8, ipady=5, ipadx=350)
+            # self.show_txt = Entry(btn_frame, borderwidth=2, font=("Consolas", 10))
+            # self.show_txt.grid(row=2, column=5,sticky="we")#, ipady=5, ipadx=350)
 
-            frame2 = Frame(self.info_win, background="coral", height= 8, borderwidth=1)
-            frame2.grid(row=15, column=0, columnspan=30, padx=30, ipadx=3, ipady=3)
+            frame2 = Frame(self.search_frame, background="coral", borderwidth=1)
+            frame2.grid(row=17, column=0, columnspan=30, padx=30, ipadx=3, ipady=3, sticky="nswe")
+            # # frame2.grid_propagate()
 
-            self.txt_area = Text(frame2, width=100, height=15, wrap=NONE,  font=("Consolas", 12))
-            self.txt_area.grid(row=16,column=1, padx=1, pady=1)
+            frame2.columnconfigure(0, weight=1)
+            frame2.rowconfigure(0, weight=1)
+
+            self.show_txt = Entry(frame2, borderwidth=2, font=("Consolas", 12), justify="center")
+            self.show_txt.grid(row=0, column=0, sticky="we")#, ipady=5, ipadx=350)
+
+            self.tree_search = ttk.Treeview(frame2, show="headings", selectmode='browse')
+            self.tree_search.grid(row=1, column=0, sticky="nsew")
+
+            # self.txt_area = Text(frame2, width=100, height=15, wrap=NONE,  font=("Consolas", 12))
+            # self.txt_area.grid(row=16,column=1, padx=1, pady=1)
             # txt_area.grid(column=1)
             # txt_area.tag_configure(1, background='beige')
             # txt_area.tag_configure(2, background='white')
-            xscroll= Scrollbar(frame2, orient="horizontal", command=self.txt_area.xview, highlightcolor="blue")
-            yscroll= Scrollbar(frame2, orient="vertical",command=self.txt_area.yview, activebackground="skyblue")
-            xscroll.grid(row=17,column=1, sticky=N, ipadx=420)
-            yscroll.grid(row=16, column=2, sticky=E, ipady=120)
+            # xscroll= Scrollbar(self.tree_search, orient="horizontal", command=self.tree_search.xview, highlightcolor="blue")
+            yscroll= Scrollbar(frame2, orient="vertical",command=self.tree_search.yview, activebackground="skyblue")
+            # xscroll.grid(row=17,column=1, sticky=N)#, ipadx=420)
+            yscroll.grid(row=1, column=1, sticky=NS)#, ipady=120)
 
-            self.txt_area.config(xscrollcommand=xscroll.set, yscrollcommand=yscroll.set)
+            self.tree_search.config(yscrollcommand=yscroll.set)
 
             # print(self.entries)
             # print(self.btns)
             # print(self.val_lst)
             
-            self.info_win.mainloop()
+            # self.info_win.mainloop()
             
         else:
             self.info_labl.config(text=f"\nYour data is {self.datas}! Please load the data!")
@@ -237,29 +293,27 @@ class EVcars():
         # it will clear entries values list whenever button is clicked
         self.val_lst.clear() 
         temp_lst = [self.option_lst[i]] # to store what we type in entry each button press
-        txt=""
         for e in self.entries:
             if self.entries[0] == e:
                 value=e.get().upper()
                 self.val_lst.append(value) 
                 temp_lst.append(value) 
-                txt += value + ", "
             else:
                 # if e.get().isdigit():    still thinking
                 #     self.val_lst.append(int(e.get()))
                 # else:
                 self.val_lst.append(e.get())
                 temp_lst.append(e.get())
-                txt += e.get() + ", "
 
-        self.hist_lst.append(temp_lst)
         if i in [1, 2]:
-            self.show_txt.insert(END, txt)
-            self.show_txt.config(state="readonly")
-            self.opt_labl.config(text=f"To {self.option_lst[i]}..")
+            # self.show_txt.insert(END, txt)
+            # self.show_txt.config(state="readonly")
+            # self.opt_labl.config(text=f"To {self.option_lst[i]}..")
+            self.hist_dict["Searched"] = temp_lst
 
         if i == 0:
-            self.info_win.destroy()
+            self.start_frame.tkraise()
+            self.search_frame.destroy()
 
         elif i == 1:
             show_all = 0 # to check each entry is empty or not, 0 means empty 
@@ -276,7 +330,6 @@ class EVcars():
         elif i == 2:
             self.add_Info()
         else:
-            self.info_win.destroy()
             self.next_Catego()  
 
 
@@ -289,22 +342,35 @@ class EVcars():
 
     def search_Info(self): ## need to modify , try to search with index
         
-        self.txt_area.delete(1.0, END)
-        # result = [data for data in self.datas if all(item in data for item in self.val_lst if item != '')]
-        result = [data for data in self.datas if any(item in data for item in self.val_lst if item != '' )]  # prefered one ,    all returns True if bool(x) is  True for all value in iterable
+        # self.txt_area.delete(1.0, END) # to del
+        self.tree_search.delete(*self.tree_search.get_children())
+        header = self.datas[0]
+        self.tree_search["columns"] = header
+        for col in header:
+            self.tree_search.heading(col, text=col)
+            self.tree_search.column(col, width=30)
 
-        self.txt_area.insert(1.0, f"{len(result)} results were found.\n\n") # I omiited brand or model to place in 
+        search_lst = [data for data in self.val_lst if data != ""]
+        result = [data for data in self.datas if all(item in data for item in search_lst )]        
+        # result = [data for data in self.datas if all(item in data for item in self.val_lst if item != '')]
+        # result = [data for data in self.datas if any(item in data for item in self.val_lst if item != '' )]  # prefered one ,    all returns True if bool(x) is  True for all value in iterable
         
-        self.txt_area.insert(END, f"{' , '.join(word.strip() for word in self.datas[0])}\n")
-        # self.txt_area.insert(END, '\n')
+        self.show_txt.insert(END, f"{len(result)} results were found")
+        self.show_txt.config(state="readonly")
+
         for row in result:
-            self.txt_area.insert(END, f"{' , '.join(word.strip() for word in row)}\n")
+            self.tree_search.insert("", "end", values=row)
+        # self.txt_area.insert(1.0, f"{len(result)} results were found.\n\n") # I omiited brand or model to place in 
+        
+        # self.txt_area.insert(END, f"{' , '.join(word.strip() for word in self.datas[0])}\n")
+        # # self.txt_area.insert(END, '\n')
+        # for row in result:
+        #     self.txt_area.insert(END, f"{' , '.join(word.strip() for word in row)}\n")
 
 
     def add_Info(self):
         # always clear textarea
         # self.txt_area.delete(1.0, END)  we dont need this here
-
         add_list = []
         for value in self.val_lst:
             if value == "":
@@ -312,8 +378,14 @@ class EVcars():
             else:
                 add_list.append(value)
         # print(add_list) 
-        self.txt_area.tag_configure("warn", foreground='red')
-        self.txt_area.tag_configure("success", foreground="blue")
+        # self.txt_area.tag_configure("warn", foreground='red')
+        # self.txt_area.tag_configure("success", foreground="blue")
+        self.tree_search.delete(*self.tree_search.get_children())
+        header = self.datas[0]
+        self.tree_search["columns"] = header
+        for col in header:
+            self.tree_search.heading(col, text=col)
+            self.tree_search.column(col, width=30, anchor='w')
 
         # to display brand and model are must fill entries
         if add_list[0] != "" or add_list[1] != "":
@@ -321,11 +393,16 @@ class EVcars():
             if add_list[0] in [data[0] for data in self.datas[1:]] and \
                 add_list[1] in [data[1] for data in self.datas[1:]]:
 
-                self.txt_area.insert(1.0, f"{self.datas[0][0]} : {add_list[0]}, {self.datas[0][1]} : {add_list[1]} are in {self.__class__.__name__}.", "warn")
+                self.show_txt.config(fg="red")
+                self.show_txt.insert("end", f"{self.datas[0][0]} : {add_list[0]}, {self.datas[0][1]} : {add_list[1]} are in your {self.__class__.__name__}.")
                 # print(f"Your added data [{add_list[0]}, {add_list[1]}] are already in {self.__class__.__name__}")
             else:
-                self.txt_area.insert(END, f"Your data is added as\n\n {', '.join(word.strip() for word in self.datas[0])}\n", "success")
-                self.txt_area.insert(END, f" {', '.join(item for item in add_list)}", "success")
+                # self.txt_area.insert(END, f"Your data is added as\n\n {', '.join(word.strip() for word in self.datas[0])}\n", "success")
+                # self.txt_area.insert(END, f" {', '.join(item for item in add_list)}", "success")
+
+                self.show_txt.config(fg="green")
+                self.show_txt.insert(END, "Your data is added!")
+                self.tree_search.insert("", END, values=add_list)
                 # print("Your data is added")
         else:   
             if add_list[0] == "":
@@ -334,53 +411,76 @@ class EVcars():
                 self.entries[1].focus_set()
             self.show_txt.config(txt=f"PLease fill both {self.datas[0]} and self{self.datas[1]}!", foreground="red")
 
-    # window 3
+    # Edit & Delete Frame 3
     def next_Catego(self):
-        self.next_cat = Toplevel(self.window)
-        self.next_cat.title("Edit, Delete..")
-        self.next_cat.geometry("800x600")
+        # self.next_cat = Toplevel(self.window)
+        # self.next_cat.title("Edit, Delete..")
+        # self.next_cat.geometry("800x600")
+        # self.next_cat.transient(self.window) # to ensure this toplevel is on top of main window when msgbox shows up
         # here I add menu # (draft)
-        self.menu2 = Menu(self.next_cat)
-        self.next_cat.config(menu=self.menu2)
-        self.menu2.add_cascade(label="Edit", activebackground="blue", command=self.menu_edit)
-        self.menu2.add_cascade(label="Delete", activebackground="blue", command=self.menu_delete)
+
+        self.edit_del_frame = Frame(self.window)
+        self.edit_del_frame.grid(row=0, column=0, sticky="nswe")
+        self.edit_del_frame.columnconfigure(5, weight=1)
+        #self.edit_del_frame.tkraise() # (optional) display this frame
+
+        # self.menu2 = Menu(self.window)
+        # self.window.config(menu=self.menu2)
+        self.menuBar.add_cascade(label="Edit", activebackground="blue", command=self.menu_edit)
+        self.menuBar.add_cascade(label="Delete", activebackground="blue", command=self.menu_delete)
 
         # messagebox.showinfo("Information", f"Be sure to fill *required datas({self.datas[0][0]}, {self.datas[0][1]}) in which {self.datas[0][1]} name must be price.") # test useage
+        self.menu_edit()
 
-        # self.frame3 = Frame(self.next_cat, background="lightblue", width=500, borderwidth=5)
-        # self.frame3.grid(row=2, column=5, columnspan=20, rowspan=30, ipadx=100, ipady=100)
-
-        # self.intro_labl = Label(self.frame3, text="Please fill both of these!")
-        # self.labl1 = Label(self.frame3, text=f"{self.datas[0][0]}: ", pady=5, font=5) 
-        # self.ent1 = Entry(self.frame3, takefocus="",  font=("Consolas", 12), state="normal")
-        
-        # self.labl2 = Label(self.frame3, text=f"{self.datas[0][1]}: ", pady=5, font=5)
-        # self.ent2 = Entry(self.frame3, font=("Consolas", 12), state="normal")
-
-        # self.cont_btn = Button(self.frame3, relief="sunken", activebackground="blue", text="Continue", command=self.show_up)
-        # self.back_btn2 = Button(self.frame3, relief="sunken", activebackground="blue", text="<< Back", command=lambda: [self.next_cat.destroy(), self.explore_Info()])
-
-        # self.intro_labl.grid(row=4, column=3,sticky=S, pady=10, padx=10)
-        # self.labl1.grid(row=5, column=2, pady=10, padx=10, sticky=W)
-        # self.ent1.grid(row=5, column= 3, padx=10, pady=10)
-        # self.labl2.grid(row=7, column=2, pady=10, padx=10, sticky=W)
-        # self.ent2.grid(row=7, column= 3, padx=10, pady=10)
-        # self.back_btn2.grid(row=9, column=1, padx=10, pady=10)
-        # self.cont_btn.grid(row=9, column=3, padx=10, pady=10)
-
-        self.next_cat.mainloop()
+        # self.next_cat.mainloop()
 
     
     def menu_edit(self): # to store above codes which are for editing,(draft)
         # first I decided to disable the current menu button(mean I was in that menu)
-        self.menu2.entryconfig("Edit", state="disabled")
-        self.menu2.entryconfig("Delete", state="normal")
+        self.menuBar.entryconfig("Edit", state="disabled")
+        self.menuBar.entryconfig("Delete", state="normal")
+        
+        try:
+            self.frame4.destroy()
+        except:
+            pass
+
+        self.frame3 = Frame(self.edit_del_frame, background="lightblue", width=500, borderwidth=5)
+        self.frame3.grid(row=2, column=5, columnspan=20, rowspan=30, padx=120, pady=20, ipadx=100, ipady=100, sticky="n")
+        Label(self.frame3, text="Editing").grid(row=1, column=0)
+
+        self.intro_labl = Label(self.frame3, text="Please fill both of these!")
+        self.labl1 = Label(self.frame3, text=f"{self.datas[0][0]}: ", pady=5, font=5) 
+        self.ent1 = Entry(self.frame3, takefocus="",  font=("Consolas", 12), state="normal")
+        self.ent1.bind("<Button-3>", lambda event: self.popup_fill_val(0, event))
+        
+        self.labl2 = Label(self.frame3, text=f"{self.datas[0][1]}: ", pady=5, font=5)
+        self.ent2 = Entry(self.frame3, font=("Consolas", 12), state="normal")
+        self.ent2.bind("<Button-3>", lambda event: self.popup_fill_val(1, event, self.ent1.get()))
+
+
+        self.cont_btn = Button(self.frame3, relief="sunken", activebackground="blue", text="Continue", command=self.show_up)
+        self.back_btn2 = Button(self.frame3, relief="sunken", activebackground="blue", text="<< Back", command=lambda: [self.next_cat.destroy(), self.explore_Info()])
+
+        self.intro_labl.grid(row=4, column=3,sticky=S, pady=10, padx=10)
+        self.labl1.grid(row=5, column=2, pady=10, padx=10, sticky=W)
+        self.ent1.grid(row=5, column= 3, padx=10, pady=10)
+        self.labl2.grid(row=7, column=2, pady=10, padx=10, sticky=W)
+        self.ent2.grid(row=7, column= 3, padx=10, pady=10)
+        self.back_btn2.grid(row=9, column=1, padx=10, pady=10)
+        self.cont_btn.grid(row=9, column=3, padx=10, pady=10)
         # self.menu2.update_idletasks()
 
 
     # copied from  ChatGpt and modified it
-    def show_up(self):
+    def show_up(self, edit=False):
 
+        if edit:
+            frame = self.frame4
+            func = self.del_vals
+        else:
+            frame = self.frame3
+            func = self.find_edit
         self.vars = [] # to store checkbuttons' var and, by iterating with .get(), we will get value
 
         self.val_lst.clear() # clear list to have only two values whenever the button is clicked
@@ -392,11 +492,11 @@ class EVcars():
 
         self.edit_index = 0 # index number of self.datas to edit, iniial value set to 0
         self.check_lst = [data for data in self.datas if all(item in data for item in self.val_lst)]
-        self.edit_index = self.datas.index(self.check_lst[0]) # here row index of inserted Brand, Model is added
 
-        # print(self.check_lst)
         if self.check_lst:
             self.intro_labl.config(fg="black")
+            self.edit_index = self.datas.index(self.check_lst[0]) # here row index of inserted Brand, Model is added
+        # print(self.check_lst)
             # self.warn_labl1.config(text="", bg="lightblue")
             try:   
                 self.warn_labl1.destroy() 
@@ -404,7 +504,7 @@ class EVcars():
                 pass 
             self.ent1.config(state="readonly")
             self.ent2.config(state="readonly")   
-            self.canvas1 = Canvas(self.frame3, background="beige", width=100, height=100, borderwidth=5)
+            self.canvas1 = Canvas(frame, background="beige", width=100, height=100, borderwidth=5)
             self.canvas1.grid(row=8, column=3,padx=5,sticky=S)
 
             self.canvas_labl = Label(self.canvas1, text="Please select option(s) to edit...")
@@ -414,7 +514,7 @@ class EVcars():
             for i, item in enumerate(self.datas[0][2:], start=2):
                 var = IntVar()  # Create a separate variable for each checkbutton
                 # row_offset = i - 1 if i < half1 else i - half1
-                chck_btn = Checkbutton(self.canvas1, text=item, selectcolor="red", justify="left", variable=var, onvalue=i, offvalue=0)
+                chck_btn = Checkbutton(self.canvas1, text=item, justify="left", variable=var, onvalue=i, offvalue=0)
                 chck_btn.grid(row=3+i, column=4, padx=5, pady=5, sticky=W)
                 self.vars.append(var)
             # print(self.var_lst)
@@ -425,10 +525,10 @@ class EVcars():
             self.back_btn3 = Button(self.canvas1, relief="sunken", activebackground="blue", text="..Back", bg="lightgrey", fg="darkblue",
                                      command=lambda:[self.canvas1.destroy(), self.ent1.config(state="normal"), self.ent2.config(state="normal")])
             self.back_btn3.grid(row=16, column=3, sticky=W, padx=5, pady=5)
-            self.cont_btn1 = Button(self.canvas1, relief="sunken", activebackground="blue", text="Continue..", bg="lightgrey", fg="darkblue", command=self.find_edit)
+            self.cont_btn1 = Button(self.canvas1, relief="sunken", activebackground="blue", text="Continue..", bg="lightgrey", fg="darkblue", command=func)
             self.cont_btn1.grid(row=16, column=5, sticky=E, padx=5, pady=5)
         else:
-            self.warn_labl1 = Label(self.frame3)
+            self.warn_labl1 = Label(frame)
             self.warn_labl1.grid(row=8, column=3)
             self.warn_labl1.config(text="There is no matched data!\n Try some specific values!\nFor more info, check in Show Cars Info", fg="red")
     
@@ -437,7 +537,7 @@ class EVcars():
     def find_edit(self): # use in button command
         
         # self.canvas1.destroy() 
-        self.canvas1.grid_forget() # thinking I should use this now and later(it causes high momory usage), but I use this and grid again its position is just stivky in W
+        self.canvas1.grid_forget() # thinking I should use this now and later(it causes high momory usage), but I use this and grid again its position is just sticky in W
         self.check_var = [c.get() for c in self.vars if c.get() != 0] # this contains index to search
 
         self.entries.clear() # clear the created list if it needs to use in descendent methods
@@ -447,22 +547,26 @@ class EVcars():
         if len(self.check_var) > 0:
             try:
                 label.destroy()
-            # except Exception:
-            #     pass
+            except Exception:
+                pass
             finally:
                     for n,index in enumerate(self.check_var, 1): #to increase row number
                         Label(self.canvas2, text=self.datas[0][index]).grid(row=1+n if n < 6 else n-4, column=0 if n < 6 else 3, pady=5, sticky=W)
                         e=Entry(self.canvas2, width=20)     # if we get ""(means user omiited or leaved blank), what will we do?
                         e.grid(row=1+n if n < 6 else n-4, column=1 if n < 6 else 4, pady=5)
                         self.entries.append(e)
+                    self.back_btn4 = Button(self.canvas2, relief="sunken", activebackground="blue", text="..Back", bg="lightgrey", fg="darkblue", command=lambda:[self.canvas2.grid_forget(), self.canvas1.grid(row=8, column=3,padx=5,sticky=S)]) # try add frid parameters or better wrap destroy canvas in function
+                    self.back_btn4.grid(row=8, column=0, sticky=W+N, padx=5, pady=5)
+                    self.cont_btn2 = Button(self.canvas2, text="Continue..", activebackground="blue", bg="lightgrey", fg="darkblue", command=lambda:[self.canvas2.grid_forget(), self.edit_value()])
+                    self.cont_btn2.grid(row=8, column=6, sticky=E+N, padx=5, pady=5)
         else:
             label = Label(self.canvas2, text="You didn't select any option. Please select at least one!", fg="red")
             label.grid(row=2, column=2)
 
-        self.back_btn4 = Button(self.canvas2, relief="sunken", activebackground="blue", text="..Back", bg="lightgrey", fg="darkblue", command=lambda:[self.canvas2.grid_forget(), self.canvas1.grid(row=8, column=3,padx=5,sticky=S)]) # try add frid parameters or better wrap destroy canvas in function
-        self.back_btn4.grid(row=8, column=0, sticky=W+N, padx=5, pady=5)
-        self.cont_btn2 = Button(self.canvas2, text="Continue..", activebackground="blue", bg="lightgrey", fg="darkblue", command=lambda:[self.canvas2.grid_forget(), self.edit_value()])
-        self.cont_btn2.grid(row=8, column=6, sticky=E+N, padx=5, pady=5)
+            self.back_btn4 = Button(self.canvas2, relief="sunken", activebackground="blue", text="..Back", bg="lightgrey", fg="darkblue", command=lambda:[self.canvas2.grid_forget(), self.canvas1.grid(row=8, column=3,padx=5,sticky=S)]) # try add frid parameters or better wrap destroy canvas in function
+            self.back_btn4.grid(row=8, column=0, sticky=W+N, padx=5, pady=5)
+        # self.cont_btn2 = Button(self.canvas2, text="Continue..", activebackground="blue", bg="lightgrey", fg="darkblue", command=lambda:[self.canvas2.grid_forget(), self.edit_value()])
+        # self.cont_btn2.grid(row=8, column=6, sticky=E+N, padx=5, pady=5)
         
     def edit_value(self): # use in button
 
@@ -475,11 +579,13 @@ class EVcars():
         # print(self.edit_index)                 #check edit_index is correct
         edit_row = self.datas[self.edit_index]     # <--- if I dont need to use later, I dont add self.           
         self.origin_val = {} # created this for creating revert method in case
-        for i, value in self.zip_val:
-            self.origin_val[edit_row[:2]] = [i, value] #optional
+
+        for i, value in self.vals_to_edit:
+            self.origin_val[f"row index {i}"] = [edit_row[:2], "origin value -" + edit_row[i], "edited value -" + value] #optional
 
             edit_row[i] = value
 
+        self.hist_dict["Edited"] = self.origin_val
         # can also add in command of 407line's button
         self.save_datas()
         self.canvas2.destroy() 
@@ -495,43 +601,60 @@ class EVcars():
 
     def menu_delete(self):
         # first I decided to disable the current menu button(mean I was in that menu)
-        self.menu2.entryconfig("Delete", state="disabled")
-        self.menu2.entryconfig("Edit", state="normal")
+        self.menuBar.entryconfig("Delete", state="disabled")
+        self.menuBar.entryconfig("Edit", state="normal")
         # self.menu2.update_idletasks()
+        #4/6/24
+        try:
+            self.frame3.destroy()
+        except:
+            pass
+        self.frame4 = Frame(self.edit_del_frame, background="lightblue", width=500, borderwidth=5)
+        self.frame4.grid(row=2, column=5, columnspan=20, rowspan=30, padx=120, pady=30, ipadx=100, ipady=100, sticky="n")
+        Button(self.frame4, text="Delete whole file", fg="red", command=self.delete_file).grid(row=1, column=3, ipadx=5, ipady=5, sticky="s")
+        Label(self.frame4, text="Deleting...").grid(row=1, column=0, pady=5)
+        self.delete_fram()
 
-        response = messagebox.askquestion("How", "Do you want to delete column value(s)?")
-        if response:
-            self.delete_val()
+    def del_msg_box(self):
+
+        self.val_lst.clear() # clear list to have only two values whenever the button is clicked
+        self.val_lst.append(self.ent1.get().upper())
+        self.val_lst.append(self.ent2.get())
+
+        self.delete_index = 0 # index number of self.datas to edit, iniial value set to 0
+        self.check_lst = [data for data in self.datas if all(item in data for item in self.val_lst)]
+        self.delete_index = self.datas.index(self.check_lst[0])
+
+        response = messagebox.askquestion("How", "1. Do you want to delete column value(s)?")
+        if response == "yes":
+            self.show_up(True)
         else:
-            response1 = messagebox.askquestion("How", "Do you want to delete row(s)?")
-            if response1:
+            response1 = messagebox.askquestion("How", "2. Do you want to delete row?")
+            if response1 == "yes":
                 self.delete_row()
             else:
-                response2 = messagebox.askquestion("How", "Do you want to delete *whole file*?")
-                if response2:
-                    self.delete_file()
-                else:
-                    self.menu_edit()
+                pass
+        
 
         
-    def delete_val(self):
-        messagebox.showinfo("Information", f"Be sure to fill *required datas({self.datas[0][0]}, {self.datas[0][1]}) in which {self.datas[0][1]} name must be precise.") # try useage
+    def delete_fram(self):
+        # messagebox.showinfo("Information", f"Be sure to fill *required datas({self.datas[0][0]}, {self.datas[0][1]}) in which {self.datas[0][1]} name must be precise.") # try useage
 
         # I use same variable names as in next_cat(menu_edit) cuz we will only use one at a time,  can also use diff variable names in this
-        self.frame3 = Frame(self.next_cat, background="lightblue", width=500, borderwidth=5)
-        self.frame3.grid(row=2, column=5, columnspan=20, rowspan=30, ipadx=100, ipady=100)
+        # self.frame3 = Frame(self.next_cat, background="lightblue", width=500, borderwidth=5)
+        # self.frame3.grid(row=2, column=5, columnspan=20, rowspan=30, ipadx=100, ipady=100)
 
-        self.intro_labl = Label(self.frame3, text="Please fill both of these!")
-        self.labl1 = Label(self.frame3, text=f"{self.datas[0][0]}: ", pady=5, font=5) 
-        self.ent1 = Entry(self.frame3, takefocus="",  font=("Consolas", 12), state="normal")
+        self.intro_labl = Label(self.frame4, text="Please fill both of these!")
+        self.labl1 = Label(self.frame4, text=f"{self.datas[0][0]}: ", pady=5, font=5) 
+        self.ent1 = Entry(self.frame4, takefocus="",  font=("Consolas", 12), state="normal")
         self.ent1.bind("<Button-3>", lambda event: self.popup_fill_val(0, event))
 
-        self.labl2 = Label(self.frame3, text=f"{self.datas[0][1]}: ", pady=5, font=5)
-        self.ent2 = Entry(self.frame3, font=("Consolas", 12), state="normal")
+        self.labl2 = Label(self.frame4, text=f"{self.datas[0][1]}: ", pady=5, font=5)
+        self.ent2 = Entry(self.frame4, font=("Consolas", 12), state="normal")
         self.ent2.bind("<Button-3>", lambda event: self.popup_fill_val(1, event, self.ent1.get()))
 
-        self.cont_btn = Button(self.frame3, relief="raised", activebackground="blue", text="Continue", command=self.show_up)
-        self.back_btn2 = Button(self.frame3, relief="raised", activebackground="blue", text="<< Back", command=lambda: [self.frame3.grid_forget(), self.explore_Info()])
+        self.cont_btn = Button(self.frame4, relief="raised", activebackground="blue", text="Continue", command=self.del_msg_box)
+        self.back_btn2 = Button(self.frame4, relief="raised", activebackground="blue", text="<< Back", command=lambda: [self.frame4.grid_forget(), self.explore_Info()])
 
         self.intro_labl.grid(row=4, column=3,sticky=S, pady=10, padx=10)
         self.labl1.grid(row=5, column=2, pady=10, padx=10, sticky=W)
@@ -541,14 +664,60 @@ class EVcars():
         self.back_btn2.grid(row=9, column=1, padx=10, pady=10)
         self.cont_btn.grid(row=9, column=3, padx=10, pady=10)
 
+    def del_vals(self):
+        self.canvas1.grid_forget() # thinking I should use this now and later(it causes high momory usage), but I use this and grid again its position is just sticky in W
+        self.check_var = [c.get() for c in self.vars if c.get() != 0] # this contains index to search
 
+        self.canvas2 = Canvas(self.frame4, background="beige", width=200, height=100, borderwidth=5)
+        self.canvas2.grid(row=8, column=3,padx=5, pady=10, ipadx=5)
+
+        if len(self.check_var) > 0:
+            try:
+                label.destroy()
+            # except Exception:
+            #     pass
+            finally:
+                    for n in self.check_var:
+                        self.hist_dict["deleted_vals(s)"] = self.datas[0][n] + " - " + self.datas[self.delete_index][n]
+
+                        if self.datas[self.delete_index][n].replace(" ", "").isalpha():
+                            self.datas[self.delete_index][n] = ""
+                        else:
+                            self.datas[self.edit_index][n] = "0"
+                            
+                    Label(self.canvas2, text="Process Completed!", font=('', 13)).grid(row=1, column=1, sticky="we", padx=5, pady=5)
+                    Button(self.canvas2, text="Cancel", command=lambda : [self.canvas2.grid_forget(), self.canvas1.grid(row=8, column=3,padx=5,sticky=S)]).grid(row=2, column=0, padx=10, sticky="w")
+                    Button(self.canvas2, text="Ok", command=lambda: [self.save_datas(), self.menu_edit()]).grid(row=2, column=5, sticky="e", padx=10, pady=10)
+        else:
+            label = Label(self.canvas2, text="You didn't select any option. Please select at least one!", fg="red")
+            label.grid(row=2, column=2)      
 
     def delete_row(self):
-        pass
 
-    def delete_file(self):
-        pass
+        self.hist_dict["deleted_row"] = self.datas[self.delete_index]        
+
+        # self.edit_index contains index number to delete
+        self.datas.pop(self.delete_index)
+        
+        self.canvas2 = Canvas(self.frame4, background="beige", width=200, height=100, borderwidth=5)
+        self.canvas2.grid(row=8, column=3,padx=5, pady=10, ipadx=5)
+
+        Label(self.canvas2, text="Process Completed!", font=('', 13)).grid(row=1, column=1, sticky="we", padx=5, pady=5)
+        Button(self.canvas2, text="Cancel", command=lambda : [self.canvas2.grid_forget(), self.canvas1.grid(row=8, column=3,padx=5,sticky=S)]).grid(row=2, column=0, padx=10, sticky="w")
+        Button(self.canvas2, text="Ok", command=lambda: [self.save_datas(), self.menu_edit()]).grid(row=2, column=5, sticky="e", padx=10, pady=10)
     
+    
+    def delete_file(self):
+        messagebox.showwarning("Alert", "You are about to delete whole file")
+        confirm = messagebox.askokcancel("Confirmation", "Are you sure to delete whole file?")
+        if confirm:
+            self.datas.clear()
+            os.remove(self.file)
+
+            self.hist_dict["Deleted File"] = self.file
+
+    
+
     # for popup fill
     def set_value(self, value, index):
         if index == 0:
@@ -557,6 +726,7 @@ class EVcars():
         else:
             self.ent2.delete(0, END)
             self.ent2.insert(0, value)
+
 
     def popup_fill_val(self, index, event, ent1_val=None): # it was a bit messy cuz I wrapped some funcs in it
         # self.fill_val = None
@@ -576,37 +746,60 @@ class EVcars():
             self.menu3.grab_release()
 
 
+    # Cars logo frame
     def show_cars_info_ico(self):
         if self.datas:
-            self.info_labl.config(text="")
-            self.root = Toplevel()
-            self.root.geometry("800x600")
-        
-            self.cars_img = ["./Project/brands/bmw.png", "./Project/brands/nissan.png", "./Project/brands/tesla.png", "./Project/brands/ford.png", "./Project/brands/rolls-royce.png", "./Project/brands/mercedes.png", "./Project/brands/toyota.png", "./Project/brands/audi.png"]
+            # self.info_labl.config(text="")
+            # self.root = Toplevel()
+            # self.root.geometry("800x600")
+            # self.root.columnconfigure(0, weight=1)
+            # self.root.rowconfigure(0, weight=1)
+            self.menuBar.entryconfig(" Home ", state=NORMAL)
+            self.menuBar.entryconfig(" Info ", state=DISABLED)
 
-            self.ico_frame = Frame(self.root, background="skyblue", relief="raised")
-            self.ico_frame.grid(row=2, column=5, columnspan=10, rowspan=10, ipadx=10, ipady=170, padx=150, sticky=N)
+            self.brands_main_frame = Frame(self.window)
+            self.brands_main_frame.grid(row=0, column=0, sticky="nsew")
+            self.brands_main_frame.columnconfigure(0, weight=1)
+
+            self.brands_main_frame.tkraise() # (optional)Even if we don't add this, it works as intended
+
+            # self.brands_main_frame.rowconfigure(0, weight=1)
+            Button(self.brands_main_frame, text="< Back", command=lambda: [self.start_frame.tkraise(), self.brands_main_frame.destroy(), self.menuBar.entryconfig(" Info ", state=NORMAL), self.menuBar.entryconfig(" Home ", state=DISABLED)])\
+                .grid(row=0, column=0, padx=5, pady=5, ipadx=5, ipady=5, sticky="w")
+
+        
+            self.cars_img = ["./Project/brands/bmw.png", "./Project/brands/nissan.png", "./Project/brands/tesla.png", "./Project/brands/ford.png", "./Project/brands/rolls-royce.png", "./Project/brands/mercedes-benz.png", "./Project/brands/toyota.png", "./Project/brands/audi.png"]
+
+            self.ico_frame = Frame(self.brands_main_frame, background="skyblue", relief="raised")
+            self.ico_frame.grid(row=1, column=0, columnspan=10, rowspan=10, ipadx=10, ipady=100, padx=150, sticky="n")
 
             names = [name.split("/")[-1][:-4].upper() for name in self.cars_img]
             images = [PhotoImage(file=image) for image in self.cars_img]
 
             for i, car in enumerate(images):
                 label =Label(self.ico_frame, image=car, background="skyblue", relief="solid", cursor="hand2")
-                label.grid(row=i//3, column= i%3, padx=10, pady=5, ipadx=10, ipady=40)
+                label.grid(row=i//3, column= i%3, padx=10, pady=5, ipadx=10, ipady=40, sticky="nswe")
                 label.bind("<Button-1>", lambda event,a=i: self.show_icon(names[a]))
-            self.root.mainloop()
+            # self.window.mainloop()
         else:
             self.info_labl.config(text="Your data is empty.\n File is not loaded yet!")
+        self.window.mainloop() # if I don't add this logos will not display
 
     def show_icon(self,name):
-        self.ico_frame.grid_forget()
+        self.brands_main_frame.grid_forget()
+
+        self.ico_main_frame = Frame(self.window)
+        self.ico_main_frame.grid(row=0, column=0, sticky="nsew")
+        self.ico_main_frame.columnconfigure(7, weight=1)
+        # self.ico_main_frame.rowconfigure(5, weight=1)
+
         models_count = len([row[1] for row in self.datas[1:] if name in row])
 
-        self.ico_back = Button(self.root, text="<< Back", bg="blue",fg="white", command=lambda: [self.root.destroy(), self.show_cars_info_ico()])
-        self.ico_back.grid(row=1, column=0, padx=5, pady=5, ipadx=5, ipady=5)
+        self.ico_back = Button(self.ico_main_frame, text="<< Back", bg="blue",fg="white", command=lambda: [self.ico_main_frame.destroy(), self.show_cars_info_ico()])
+        self.ico_back.grid(row=0, column=0, padx=5, pady=5, ipadx=5, ipady=5, sticky=W)
 
-        self.brand_name = Label(self.root, text=f"{name} ({models_count})" , font=('', 12, 'bold'))
-        self.brand_name.grid(row=1, column=7, padx=5, pady=5, sticky=N) 
+        self.brand_name = Label(self.ico_main_frame, text=f"{name} ({models_count})" , font=('', 12, 'bold'))
+        self.brand_name.grid(row=0, column=7, padx=5, pady=5, sticky=S) 
 
         path = "./Project/models/" + name.lower() +"/"
         # print(os.path.exists(path))
@@ -620,23 +813,25 @@ class EVcars():
         # Button(self.root, text=" < ", font=('', 10, 'bold'), background="skyblue", command=self.prev_ico).grid(row=2, column=4, padx=5, pady=5, ipadx=5, ipady=5)
         # Button(self.root, text=" > ", font=('', 10, 'bold'), background="skyblue", command=self.next_ico).grid(row=2, column=7, padx=5, pady=5, ipadx=5, ipady=5, sticky=W)
 
-        self.ico_frame1 = Frame(self.root, width=50, height=20, background="skyblue", borderwidth=2, relief="solid")
-        self.ico_frame1.grid(row=2, column=7, padx=50, pady=10, sticky=W)
-        
+        self.ico_frame1 = Frame(self.ico_main_frame, width=50, height=20, background="skyblue", borderwidth=2, relief="solid")
+        self.ico_frame1.grid(row=1, column=7, padx=40, pady=10, sticky="s")
+        self.ico_frame1.columnconfigure([7,8], weight=2)
+
         self.ico = Label(self.ico_frame1, image=self.img_modl[self.img_counter][0], background="skyblue", cursor="hand2")
-        self.ico.grid(row=1, column=7, pady=10)
-        self.ico.bind("<Button-1>", lambda event, a=self.img_modl[self.img_counter][1]: self.img_info(a))
+        self.ico.grid(row=1, column=7, pady=10, sticky=NSEW)
+        # self.ico.bind("<Button-1>", lambda event, a=self.img_modl[self.img_counter][1]: self.img_info(a))
+        self.action_on = False # to toggle button
+        self.ico.bind("<Button-1>", lambda event: self.img_info())
  
         Button(self.ico_frame1, text=" < ", font=('', 15, 'bold'), activebackground="skyblue", command=self.prev_ico).grid(row=2, column=0, padx=5, pady=5, ipadx=5, ipady=5, sticky=W)
         
-        self.ico_name = Label(self.ico_frame1, text=f"{self.img_counter+1}.{self.img_modl[self.img_counter][1]}\
-                               ( ${int(self.model[0][-1]):,.0f} )", background="skyblue", font=7)
-        self.ico_name.grid(row=2, column=7) 
+        self.ico_name = Label(self.ico_frame1, text=f"{self.img_counter+1}.   {self.img_modl[self.img_counter][1]} ( ${int(self.model[0][-1]):,.0f} )", background="skyblue", font=7)
+        self.ico_name.grid(row=2, column=7, sticky="s") 
 
         Button(self.ico_frame1, text=" > ", font=('', 15, 'bold'), activebackground="skyblue", command=self.next_ico).grid(row=2, column=8, padx=5, pady=5, ipadx=5, ipady=5, sticky=E)
 
-        self.txt_frame = Frame(self.root, width=80, borderwidth=2, relief="solid", background="skyblue")
-        self.txt_frame.grid(row=5, column=5, padx= 10, ipadx=20, sticky=S)
+        self.txt_frame = Frame(self.ico_main_frame, width=80, borderwidth=2, relief="solid", background="skyblue")
+        self.txt_frame.grid(row=5, column=5, padx= 10, ipadx=20, sticky=EW)
 
         for i, column in enumerate(self.datas[0][1:7]):
             Label(self.txt_frame, text=column, justify='left',background="skyblue").grid(row=i , column=0, sticky=W, padx=5, pady=5)
@@ -647,10 +842,14 @@ class EVcars():
             Label(self.txt_frame, text=f"- {self.model[0][7:][i]}", justify='left', background="skyblue").grid(row=i, column=4, sticky=W, pady=5)
         
         self.txt_frame.grid_forget()
-        self.root.mainloop()
+        # self.root.mainloop()
 
-    def img_info(self, model):
-        self.txt_frame.grid(row=4, column=7, ipadx=50)
+    def img_info(self):
+        self.action_on = not self.action_on # toggling using boolean
+        if self.action_on:
+            self.txt_frame.grid(row=4, column=7, ipadx=50)
+        else:
+            self.txt_frame.grid_forget()
 
     def next_ico(self):
 
@@ -679,8 +878,8 @@ class EVcars():
         images = []
         model_names = []
         for image in images_dir:
-            # I didn't use this for now yet, please test it
-            Image.open(path + image).resize((350, 230)).save(path+image) # to automatically resize but you will need PIL module
+            # I didn't use this for now yet
+            Image.open(path+image).resize((420,270)).save(path+image) # to automatically resize but you will need PIL module
             
             images.append(PhotoImage(file=path+image))
             model_names.append(image[:-4])
@@ -691,5 +890,9 @@ class EVcars():
         with open(self.file, 'w', newline='') as f:
             reWriter = csv.writer(f)
             reWriter.writerows(self.datas)
+        
+        with open(os.curdir+"/Project/log", "a") as l:
+            for x, value in self.hist_dict.items():
+                l.write(x +" - " + str(value) + "\n")
 
 EVcars()
