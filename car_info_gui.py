@@ -62,7 +62,7 @@ class EVcars():
 
         Label(self.start_frame, text="Presented by Team-3 (The Python Ninjas)", font=2, bg="lightblue").grid(row=6, column=0, sticky='sw')
 
-        
+
     def ask_confirm(self):
         response = messagebox.askokcancel("Conirmation", "Are you sure to quit?")
         if response:
@@ -101,9 +101,17 @@ class EVcars():
         self.menuBar.add_cascade(label=" About ",activebackground="blue", menu=self.subMenu)
         self.subMenu.add_command(label="Team Logo(example)",activebackground="blue", command=self.aboutUs)
 
-        self.menuBar.add_cascade(label=" Home ", command=self.start_frame.tkraise)
+        self.menuBar.add_cascade(label=" Home ", command=lambda: [self.start_frame.tkraise(), self.dis_menu(" Home ")])
         self.menuBar.add_cascade(label=" Info ", activebackground="blue", command=self.show_cars_info_ico) 
         
+
+    def dis_menu(self, name): #disable that name and set others normal
+        menu = [" Home ", " About ", " Info "]
+        for m in menu:
+            if m == name:
+                self.menuBar.entryconfig(m, state=DISABLED)
+            else:
+                self.menuBar.entryconfig(m, state=NORMAL)
 
 
     def aboutUs(self):
@@ -153,7 +161,6 @@ class EVcars():
             style.theme_use('default')  # try with different theme ('clam', etc..)
             style.configure('Treeview.Heading', background="skyblue")
             # show_window.mainloop()
-        
         else:
             self.info_labl.config(text="File is not loaded yet!\nPlease load it!", fg="red")
 
@@ -217,25 +224,31 @@ class EVcars():
             self.search_frame.columnconfigure(0, weight=1)
 
 
-            frame1 = Frame(self.search_frame, background="lightblue",borderwidth=10)
-            frame1.grid(row=0, rowspan=9, column=0, padx=10, pady=20, columnspan=20, ipadx=100)#,sticky="we")#, 
+            self.frame1 = Frame(self.search_frame, background="lightblue",borderwidth=10)
+            self.frame1.grid(row=0, rowspan=9, column=0, padx=10, pady=20, columnspan=20, ipadx=100)#,sticky="we")#, 
             self.entries = []
             # value = StringVar()
             
 
             for i in range(len(self.fst_half)):
-                Label(frame1, text=f"{self.fst_half[i]} : ",background="lightblue").grid(row=i, column=0, padx= 20,  pady=5, sticky=W)
-                e = Entry(frame1, font=("Consolas", 12))
+                Label(self.frame1, text=f"{self.fst_half[i]} : ",background="lightblue").grid(row=i, column=0, padx= 20,  pady=5, sticky=W)
+                e = Entry(self.frame1, font=("Consolas", 12))
                 e.delete(0, END) # <----- 
                 e.grid(row=i, column=1, columnspan=5, pady=5, ipadx=5) # row ends at 7
                 self.entries.append(e)
 
             for i in range(len(self.scd_half)):
-                Label(frame1, text=f"{self.scd_half[i]} : ", background="lightblue").grid(row=i, column=10, padx=30, pady=5, sticky=W)
-                e = Entry(frame1, font=("Consolas", 12))
+                Label(self.frame1, text=f"{self.scd_half[i]} : ", background="lightblue").grid(row=i, column=10, padx=30, pady=5, sticky=W)
+                e = Entry(self.frame1, font=("Consolas", 12))
                 e.grid(row=i, column=11, columnspan=5, pady=5, ipadx=5)
                 self.entries.append(e)
 
+            for e in self.entries[:2]:
+                if e == self.entries[1] :
+                    # if self.entries[0].get() != "":
+                    e.bind("<Button-3>", lambda event:self.popup_fill_val(self.frame1, 1, event, self.entries[0].get()))
+                else:
+                    e.bind("<Button-3>", lambda event:self.popup_fill_val(self.frame1, 0, event))
             # self.val_lst = [] # to store entry values for many functions ,and this will use in data manipulation
             # self.hist_lst = [] # to store what we type in entry as list   # origin (we moved them cuz destroying widget also delete them)
 
@@ -419,15 +432,17 @@ class EVcars():
         # self.next_cat.transient(self.window) # to ensure this toplevel is on top of main window when msgbox shows up
         # here I add menu # (draft)
 
-        self.edit_del_frame = Frame(self.window)
-        self.edit_del_frame.grid(row=0, column=0, sticky="nswe")
-        self.edit_del_frame.columnconfigure(5, weight=1)
+        self.edit_frame = Frame(self.window)
+        self.edit_frame.grid(row=0, column=0, sticky="nswe")
+        self.edit_frame.columnconfigure(5, weight=1)
         #self.edit_del_frame.tkraise() # (optional) display this frame
-
+        Button(self.edit_frame, text="< Back ", command=lambda: [self.edit_frame.destroy(), self.explore_Info()]).grid(row=0, column=0, padx=5, pady=5, ipadx=5, ipady=5, sticky=W)
+        Button(self.edit_frame, text="To Delete ", command=self.menu_delete).grid(row=0, column=10, padx=5, pady=5, ipadx=5, ipady=5, sticky=E)
+        
         # self.menu2 = Menu(self.window)
         # self.window.config(menu=self.menu2)
-        self.menuBar.add_cascade(label="Edit", activebackground="blue", command=self.menu_edit)
-        self.menuBar.add_cascade(label="Delete", activebackground="blue", command=self.menu_delete)
+        # self.menuBar.add_cascade(label="Edit", activebackground="blue", command=self.menu_edit)
+        # self.menuBar.add_cascade(label="Delete", activebackground="blue", command=self.menu_delete)
 
         # messagebox.showinfo("Information", f"Be sure to fill *required datas({self.datas[0][0]}, {self.datas[0][1]}) in which {self.datas[0][1]} name must be price.") # test useage
         self.menu_edit()
@@ -437,37 +452,37 @@ class EVcars():
     
     def menu_edit(self): # to store above codes which are for editing,(draft)
         # first I decided to disable the current menu button(mean I was in that menu)
-        self.menuBar.entryconfig("Edit", state="disabled")
-        self.menuBar.entryconfig("Delete", state="normal")
+        # self.menuBar.entryconfig("Edit", state="disabled")
+        # self.menuBar.entryconfig("Delete", state="normal")
         
-        try:
-            self.frame4.destroy()
-        except:
-            pass
+        # try:
+        #     self.frame4.destroy()
+        # except:
+        #     pass
 
-        self.frame3 = Frame(self.edit_del_frame, background="lightblue", width=500, borderwidth=5)
+        self.frame3 = Frame(self.edit_frame, background="lightblue", width=500, borderwidth=5)
         self.frame3.grid(row=2, column=5, columnspan=20, rowspan=30, padx=120, pady=20, ipadx=100, ipady=100, sticky="n")
         Label(self.frame3, text="Editing").grid(row=1, column=0)
 
         self.intro_labl = Label(self.frame3, text="Please fill both of these!")
         self.labl1 = Label(self.frame3, text=f"{self.datas[0][0]}: ", pady=5, font=5) 
         self.ent1 = Entry(self.frame3, takefocus="",  font=("Consolas", 12), state="normal")
-        self.ent1.bind("<Button-3>", lambda event: self.popup_fill_val(0, event))
+        self.ent1.bind("<Button-3>", lambda event: self.popup_fill_val(self.edit_frame, 0, event))
         
         self.labl2 = Label(self.frame3, text=f"{self.datas[0][1]}: ", pady=5, font=5)
         self.ent2 = Entry(self.frame3, font=("Consolas", 12), state="normal")
-        self.ent2.bind("<Button-3>", lambda event: self.popup_fill_val(1, event, self.ent1.get()))
+        self.ent2.bind("<Button-3>", lambda event: self.popup_fill_val(self.edit_frame, 1, event, self.ent1.get()))
 
 
         self.cont_btn = Button(self.frame3, relief="sunken", activebackground="blue", text="Continue", command=self.show_up)
-        self.back_btn2 = Button(self.frame3, relief="sunken", activebackground="blue", text="<< Back", command=lambda: [self.next_cat.destroy(), self.explore_Info()])
+        # self.back_btn2 = Button(self.frame3, relief="sunken", activebackground="blue", text="<< Back", command=lambda: [self.next_cat.destroy(), self.explore_Info()])
 
         self.intro_labl.grid(row=4, column=3,sticky=S, pady=10, padx=10)
         self.labl1.grid(row=5, column=2, pady=10, padx=10, sticky=W)
         self.ent1.grid(row=5, column= 3, padx=10, pady=10)
         self.labl2.grid(row=7, column=2, pady=10, padx=10, sticky=W)
         self.ent2.grid(row=7, column= 3, padx=10, pady=10)
-        self.back_btn2.grid(row=9, column=1, padx=10, pady=10)
+        # self.back_btn2.grid(row=9, column=1, padx=10, pady=10)
         self.cont_btn.grid(row=9, column=3, padx=10, pady=10)
         # self.menu2.update_idletasks()
 
@@ -601,15 +616,24 @@ class EVcars():
 
     def menu_delete(self):
         # first I decided to disable the current menu button(mean I was in that menu)
-        self.menuBar.entryconfig("Delete", state="disabled")
-        self.menuBar.entryconfig("Edit", state="normal")
+        # self.menuBar.entryconfig("Delete", state="disabled")
+        # self.menuBar.entryconfig("Edit", state="normal")
         # self.menu2.update_idletasks()
-        #4/6/24
-        try:
-            self.frame3.destroy()
-        except:
-            pass
-        self.frame4 = Frame(self.edit_del_frame, background="lightblue", width=500, borderwidth=5)
+        # #4/6/24
+        # try:
+        #     self.frame3.destroy()
+        # except:
+        #     pass
+        self.edit_frame.destroy()
+
+        self.del_frame = Frame(self.window)
+        self.del_frame.grid(row=0, column=0, sticky="nswe")
+        self.del_frame.columnconfigure(5, weight=1)
+
+        Button(self.del_frame, text="< To Edit ", command=lambda: [self.del_frame.destroy(), self.next_Catego()]).grid(row=0, column=0, padx=5, pady=5, ipadx=5, ipady=5, sticky=W)
+        # Button(self.del_frame, text="To Delete ").grid(row=0, column=1, padx=5, pady=5, ipadx=5, ipady=5, sticky=E)
+        
+        self.frame4 = Frame(self.del_frame, background="lightblue", width=500, borderwidth=5)
         self.frame4.grid(row=2, column=5, columnspan=20, rowspan=30, padx=120, pady=30, ipadx=100, ipady=100, sticky="n")
         Button(self.frame4, text="Delete whole file", fg="red", command=self.delete_file).grid(row=1, column=3, ipadx=5, ipady=5, sticky="s")
         Label(self.frame4, text="Deleting...").grid(row=1, column=0, pady=5)
@@ -647,21 +671,21 @@ class EVcars():
         self.intro_labl = Label(self.frame4, text="Please fill both of these!")
         self.labl1 = Label(self.frame4, text=f"{self.datas[0][0]}: ", pady=5, font=5) 
         self.ent1 = Entry(self.frame4, takefocus="",  font=("Consolas", 12), state="normal")
-        self.ent1.bind("<Button-3>", lambda event: self.popup_fill_val(0, event))
+        self.ent1.bind("<Button-3>", lambda event: self.popup_fill_val(self.del_frame, 0, event))
 
         self.labl2 = Label(self.frame4, text=f"{self.datas[0][1]}: ", pady=5, font=5)
         self.ent2 = Entry(self.frame4, font=("Consolas", 12), state="normal")
-        self.ent2.bind("<Button-3>", lambda event: self.popup_fill_val(1, event, self.ent1.get()))
+        self.ent2.bind("<Button-3>", lambda event: self.popup_fill_val(self.del_frame, 1, event, self.ent1.get()))
 
         self.cont_btn = Button(self.frame4, relief="raised", activebackground="blue", text="Continue", command=self.del_msg_box)
-        self.back_btn2 = Button(self.frame4, relief="raised", activebackground="blue", text="<< Back", command=lambda: [self.frame4.grid_forget(), self.explore_Info()])
+        # self.back_btn2 = Button(self.frame4, relief="raised", activebackground="blue", text="<< Back", command=lambda: [self.frame4.grid_forget(), self.explore_Info()])
 
         self.intro_labl.grid(row=4, column=3,sticky=S, pady=10, padx=10)
         self.labl1.grid(row=5, column=2, pady=10, padx=10, sticky=W)
         self.ent1.grid(row=5, column= 3, padx=10, pady=10)
         self.labl2.grid(row=7, column=2, pady=10, padx=10, sticky=W)
         self.ent2.grid(row=7, column= 3, padx=10, pady=10)
-        self.back_btn2.grid(row=9, column=1, padx=10, pady=10)
+        # self.back_btn2.grid(row=9, column=1, padx=10, pady=10)
         self.cont_btn.grid(row=9, column=3, padx=10, pady=10)
 
     def del_vals(self):
@@ -719,26 +743,34 @@ class EVcars():
     
 
     # for popup fill
-    def set_value(self, value, index):
-        if index == 0:
-            self.ent1.delete(0, END)
-            self.ent1.insert(0, value)
-        else:
-            self.ent2.delete(0, END)
-            self.ent2.insert(0, value)
+    def set_value(self, value, index, root):
+        if root == self.frame1:
+            if index == 0:
+                self.entries[0].delete(0, END) # can set self.entries[index]
+                self.entries[0].insert(0, value)
+            else:
+                self.entries[1].delete(0, END)
+                self.entries[1].insert(0, value)
+        else: 
+            if index == 0:
+                self.ent1.delete(0, END)
+                self.ent1.insert(0, value)
+            else:
+                self.ent2.delete(0, END)
+                self.ent2.insert(0, value)
 
 
-    def popup_fill_val(self, index, event, ent1_val=None): # it was a bit messy cuz I wrapped some funcs in it
+    def popup_fill_val(self, root, index, event, ent1_val=None): # it was a bit messy cuz I wrapped some funcs in it
         # self.fill_val = None
         # if index == 0:
-        self.menu3 = Menu(self.next_cat, tearoff=0)
+        self.menu3 = Menu(root, tearoff=0)
         if ent1_val:
             self.fill_val = [row[1] for row in self.datas if ent1_val in row]
         else:
             self.fill_val=set(row[index] for row in self.datas[1:])  # I used set() to get unduplicated data
 
         for value in self.fill_val:
-            self.menu3.add_command(label=value, command=lambda v=value, i=index: self.set_value(v, i))
+            self.menu3.add_command(label=value, command=lambda v=value, i=index: self.set_value(v, i, root))
 
         try:
             self.menu3.tk_popup(event.x_root, event.y_root)
