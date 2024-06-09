@@ -2,7 +2,7 @@ from tkinter import *
 from tkinter import ttk  # for Treeview
 from tkinter import filedialog
 from tkinter import messagebox
-from PIL import ImageTk, Image # to manipulate images
+from PIL import Image, ImageTk # to manipulate images
 import os
 import csv
 
@@ -11,7 +11,11 @@ class EVcars():
     def __init__(self):
         self.window = Tk()
         # icon = ImageTk.PhotoImage(Image.open("./Project/python_ninjas_logo2.jpg")) for .jpg
-        icon = PhotoImage(file="./Project/fourninjas with python.png")
+        icon = ImageTk.PhotoImage(Image.open("./Project/frame_logo/fourninjas with python.png"))
+        # icon = PhotoImage(file="./Project/frame logo/fourninjas with python.png")
+        # self.cars_img =[img for img in os.listdir("./Project/brands")]
+        # print([name[:-4].upper() for name in self.cars_img])
+
         self.window.title("Ninjas EV Trading System")
         self.window.iconphoto(True, icon) #set True to set that icon in all self.window & its descendents
         self.window.geometry("800x600")
@@ -31,13 +35,14 @@ class EVcars():
         # self.main_frame.columnconfigure(0, weight=1)
         # self.main_frame.rowconfigure(0, weight=1)
         
-        self.start_page()
-        self.createWidgets() #top menu
-        self.menuBar.entryconfig(" Home ", state=DISABLED)
+        self.home()
+        # self.createWidgets() #top menu
+        # self.menuBar.entryconfig(" Home ", state=DISABLED)
+
         self.window.mainloop()
 
     def start_page(self):
-
+        self.menuBar.entryconfig(" Home ", state='active')
         self.start_frame = Frame(self.window, bg="lightblue")
         # self.start_frame.pack(fill=BOTH, expand=True)
         self.start_frame.grid(row=0, column=0, sticky="nsew")
@@ -45,7 +50,7 @@ class EVcars():
         self.start_frame.columnconfigure(0, weight=1)
         self.start_frame.rowconfigure(6, weight=1)
 
-        self.noti_labl = Label(self.start_frame, text="Please load file first!", bg="black", fg="white", font=('', 10, 'bold'))
+        self.noti_labl = Label(self.start_frame, text="Please load file first!", bg="lightblue", fg="black", font=('', 10, 'bold'))
         self.noti_labl.grid(row=0, column=0, columnspan=2, pady=20, ipadx=5, ipady=5)
 
         self.load_btn = Button(self.start_frame, relief="raised", text="Load file", activebackground="darkblue", command=self.load_file, bg="blue", fg="white", font=('Consolas', 10))
@@ -64,7 +69,7 @@ class EVcars():
 
 
     def ask_confirm(self):
-        response = messagebox.askokcancel("Conirmation", "Are you sure to quit?")
+        response = messagebox.askokcancel("Confirmation", "Are you sure to quit?")
         if response:
             self.window.destroy()
         else:
@@ -79,16 +84,22 @@ class EVcars():
         )
         self.file = file
         if self.file:
-            self.info_labl.config(text="File loaded!", fg="green", font=1)
-            self.noti_labl.config(text=f"{self.file.split('/')[-1]} is in load.")
+            # self.noti_labl.config(text=f"Your file is in load.")
+            # self.info_labl.config(text="File loaded!", fg="green", font=1)
+            # self.window.after(5000, self.info_labl.config(text="")) # clear text after 2000ms(2s)
+            # self.noti_labl.config(text=f"{self.file.split('/')[-1]} is in load.")
+            self.window.after(200, self.info_labl.config(text=""))
+            self.noti_labl.config(text=f"{self.file.split('/')[-1]} is loaded.", fg="green")
+
             self.load_btn.config(text="Load Another File")
             with open(self.file, newline='') as file:
                 csv_reader = csv.reader(file)
                 self.datas = [row for row in csv_reader]
+
+            self.sorted_data = sorted(self.datas[1:], key=lambda a: (a[0], a[1])) # sorted data
             # print(self.datas)
             # if file:
             #     self.display_info()
-
 
     # 1st window
     # this create winfo   --> Try it! <--
@@ -98,38 +109,51 @@ class EVcars():
         top.config(menu=self.menuBar)
         self.subMenu = Menu(self.menuBar, tearoff=0)
 
-        self.menuBar.add_cascade(label=" About ",activebackground="blue", menu=self.subMenu)
-        self.subMenu.add_command(label="Team Logo(example)",activebackground="blue", command=self.aboutUs)
+        # self.menuBar.add_cascade(label=" About ",activebackground="blue", menu=self.subMenu)
+        # self.subMenu.add_command(label="Team Logo(example)",activebackground="blue", command=self.aboutUs)
+
+        # home_logo = ImageTk.PhotoImage(Image.open("./Project/frame_logo/home.png")) # can't use directly in menu bar
+        # car_logo = ImageTk.PhotoImage(Image.open("./Project/frame_logo/cars.png"))
 
         self.menuBar.add_cascade(label=" Home ", command=lambda: [self.start_frame.tkraise(), self.dis_menu(" Home ")])
         self.menuBar.add_cascade(label=" Info ", activebackground="blue", command=self.show_cars_info_ico) 
         
 
     def dis_menu(self, name): #disable that name and set others normal
-        menu = [" Home ", " About ", " Info "]
+        menu = [" Home ", " Info "]
         for m in menu:
             if m == name:
-                self.menuBar.entryconfig(m, state=DISABLED)
+                self.menuBar.entryconfig(m, state='active')
             else:
                 self.menuBar.entryconfig(m, state=NORMAL)
 
 
-    def aboutUs(self):
-        about = Toplevel(self.window)
-        about.title("About Us")
+    def home(self):
+        # about = Toplevel(self.window)
+        # about.title("About Us")
         # img = ImageTk.PhotoImage(Image.open("./Project/python_ninjas_logo2.jpg")) #1st way this needs to import PIL 
-        img = PhotoImage(file="./Project/fourninjas with python.png") #2nd way , .png can be used in both 1 and 2
+        # Image.open("./Project/fourninjas with python.png").resize((800,600)).save("./Project/fourninjas with python.png") #2nd way , .png can be used in both 1 and 2
+        img = PhotoImage(file="./Project/frame_logo/fourninjas with python.png")
+        # img = ImageTk.PhotoImage(Image.open("./Project/frame_logo/fourninjas with python.png"))
+
         # Display the image in a Label
-        self.menuBar.entryconfig(" Home ", state="normal")
-        img_label = Label(about, image=img)
-        img_label.pack()
-        about.mainloop()
+        # self.menuBar.entryconfig(" Home ", state="normal")
+        show_frame = Frame(self.window)
+        show_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+        show_frame.columnconfigure(0, weight=1)
+        show_frame.rowconfigure(0, weight=1)
+
+        img_label = Label(show_frame, image=img)
+        img_label.bind("<Button-1>", lambda event: [ self.createWidgets(), self.start_page(), show_frame.destroy()])
+        img_label.grid(row=0, column=0, sticky="nswe")
+        self.window.mainloop()
+
 
 
     # Show all cars info frame 
     def show_Info(self):
         
-        if self.file:
+        if self.datas:
             # self.info_labl.config(text="")
             # show_window = Toplevel(self.window)
             # show_window.title("All Cars Info ")
@@ -150,7 +174,7 @@ class EVcars():
             self.data_info.pack(pady=5)
 
             # tree view shows columnwide so I created yscroll only
-            self.tree = ttk.Treeview(self.display_frame, show="headings")
+            self.tree = ttk.Treeview(self.display_frame, show="headings", selectmode="browse",)
             self.tree.pack(padx=20, pady=20, fill="both", expand=True)
             yscroll = Scrollbar(self.tree, relief="sunken", orient='vertical', command=self.tree.yview)
             yscroll.pack(side=RIGHT, fill=Y)
@@ -159,48 +183,48 @@ class EVcars():
             # set heading row color
             style = ttk.Style()
             style.theme_use('default')  # try with different theme ('clam', etc..)
-            style.configure('Treeview.Heading', background="skyblue")
+            style.configure('Treeview.Heading', background="skyblue", rowheight=20)
             # show_window.mainloop()
         else:
-            self.info_labl.config(text="File is not loaded yet!\nPlease load it!", fg="red")
+            self.info_labl.config(text=f"Your data is {'invalid' if self.datas else 'empty'}.\nFile is not loaded yet!", fg="red")
 
 
     def display_info(self):
 
-        try:
             # self.info_labl.config(text="")
-            with open(self.file, 'r', newline='') as file:
-                csv_reader = csv.reader(file)
-                header = next(csv_reader)  # Read the header row
-                self.tree.delete(*self.tree.get_children())  # Clear the current data
+        with open(self.file, 'r', newline='') as file: # I dont need this here , can use self.datas
+            csv_reader = csv.reader(file)
+            header = next(csv_reader)  # Read the header row
+            self.tree.delete(*self.tree.get_children())  # Clear the current data
 
-                brands= [] # to display number of brands
-                self.tree["columns"] = header
-                for col in header:
-                    self.tree.heading(col, text=col)
-                    self.tree.column(col, width=100)
-                
-                # for row colors
-                self.tree.tag_configure("oddrow", background="lightblue")
-                self.tree.tag_configure("evenrow", background="blanched almond")
+            brands= [] # to display number of brands
+            self.tree["columns"] = header
+            for col in header:
+                self.tree.heading(col, text=col)
+                self.tree.column(col, width=100)
+            
+            # for row colors
+            self.tree.tag_configure("oddrow", background="lightblue")
+            self.tree.tag_configure("evenrow", background="blanched almond")
 
-                count = 0
-                for i, row in enumerate(csv_reader):
-                    tags = "evenrow" if i % 2 == 0 else "oddrow"
-                    self.tree.insert("", "end", values=row, tag=tags)
-                    count += 1 # to count rows
-                    if row[0] not in brands:
-                        brands.append(row[0]) # can  also use this line only and later use set() to remove duplicates
-                # use config to add arguments
-                self.data_info.config(text=f"There are {count} {self.__class__.__name__} with {len(brands)} different types.")
+            count = 0
 
-        except Exception as e:
-            self.data_info.config(text=f"{e}",fg="red")
+            for i, row in enumerate(self.sorted_data):
+                tags = "evenrow" if i % 2 == 0 else "oddrow"
+                self.tree.insert("", "end", values=row, tag=tags)
+                count += 1 # to count rows
+                if row[0] not in brands:
+                    brands.append(row[0]) # can  also use this line only and later use set() to remove duplicates
+            # use config to add arguments
+            self.data_info.config(text=f"There are {count} {self.__class__.__name__} with {len(brands)} different types.")
+
+        # except Exception as e:
+        #     self.data_info.config(text=f"{e}",fg="red")
 
     # Frame 2  
     def explore_Info(self):
 
-        if self.file:
+        if self.datas:
             # self.info_labl.config(text="")
             # self.info_win = Toplevel(self.window)
             # self.info_win.title("Add & Explore")
@@ -298,7 +322,7 @@ class EVcars():
             # self.info_win.mainloop()
             
         else:
-            self.info_labl.config(text=f"\nYour data is {self.datas}! Please load the data!")
+            self.info_labl.config(text=f"\nYour data is {'invaid' if self.datas else 'empty'}.\n Please load the data!")
 
     def process_button(self, i):
         self.show_txt.config(state="normal")
@@ -322,7 +346,10 @@ class EVcars():
             # self.show_txt.insert(END, txt)
             # self.show_txt.config(state="readonly")
             # self.opt_labl.config(text=f"To {self.option_lst[i]}..")
-            self.hist_dict["Searched"] = temp_lst
+            if i == 1:
+                self.hist_dict["Searched"] = temp_lst
+            else:
+                self.hist_dict["Added"] = temp_lst
 
         if i == 0:
             self.start_frame.tkraise()
@@ -364,65 +391,79 @@ class EVcars():
             self.tree_search.column(col, width=30)
 
         search_lst = [data for data in self.val_lst if data != ""]
-        result = [data for data in self.datas if all(item in data for item in search_lst )]        
+        result = [data for data in self.sorted_data if all(item in data for item in search_lst )]        
         # result = [data for data in self.datas if all(item in data for item in self.val_lst if item != '')]
         # result = [data for data in self.datas if any(item in data for item in self.val_lst if item != '' )]  # prefered one ,    all returns True if bool(x) is  True for all value in iterable
         
+        # target_lst = self.datas
+        # for item in search_lst:
+        #     next_lst = self.find_val(item, target_lst)
+        #     target_lst = next_lst
+        # print(target_lst)
+
         self.show_txt.insert(END, f"{len(result)} results were found")
         self.show_txt.config(state="readonly")
 
         for row in result:
             self.tree_search.insert("", "end", values=row)
-        # self.txt_area.insert(1.0, f"{len(result)} results were found.\n\n") # I omiited brand or model to place in 
-        
-        # self.txt_area.insert(END, f"{' , '.join(word.strip() for word in self.datas[0])}\n")
-        # # self.txt_area.insert(END, '\n')
-        # for row in result:
-        #     self.txt_area.insert(END, f"{' , '.join(word.strip() for word in row)}\n")
+
+    # def find_val(self,item, target_lst):
+    #     next_lst=[]
+    #     for lst in target_lst:
+    #         if item in lst:
+    #             next_lst.append(lst)
+    #     return next_lst
 
 
     def add_Info(self):
         # always clear textarea
         # self.txt_area.delete(1.0, END)  we dont need this here
         add_list = []
-        for value in self.val_lst:
-            if value == "":
-                add_list.append("-")
-            else:
-                add_list.append(value)
-        # print(add_list) 
-        # self.txt_area.tag_configure("warn", foreground='red')
-        # self.txt_area.tag_configure("success", foreground="blue")
-        self.tree_search.delete(*self.tree_search.get_children())
-        header = self.datas[0]
-        self.tree_search["columns"] = header
-        for col in header:
-            self.tree_search.heading(col, text=col)
-            self.tree_search.column(col, width=30, anchor='w')
+        empty = True if all(item == "" for item in self.val_lst) else False
+        if empty:
+            self.show_txt.config(fg="red")
+            self.show_txt.insert(END, "Empty data can't be added! Please provide at least one.")
+        else:
+            for value in self.val_lst:
+                if value == "":
+                    add_list.append("-")
+                else:
+                    add_list.append(value)
+            # print(add_list) 
+            # self.txt_area.tag_configure("warn", foreground='red')
+            # self.txt_area.tag_configure("success", foreground="blue")
+            self.tree_search.delete(*self.tree_search.get_children())
+            header = self.datas[0]
+            self.tree_search["columns"] = header
+            for col in header:
+                self.tree_search.heading(col, text=col)
+                self.tree_search.column(col, width=30, anchor='w')
 
-        # to display brand and model are must fill entries
-        if add_list[0] != "" or add_list[1] != "":
-            # if same brand and model name in original data, adding data can;t be done.
-            if add_list[0] in [data[0] for data in self.datas[1:]] and \
-                add_list[1] in [data[1] for data in self.datas[1:]]:
+            # to display brand and model are must fill entries
+            if add_list[0] != "" or add_list[1] != "":
+                # if same brand and model name in original data, adding data can;t be done.
+                if add_list[0] in [data[0] for data in self.datas[1:]] and \
+                    add_list[1] in [data[1] for data in self.datas[1:]]:
 
-                self.show_txt.config(fg="red")
-                self.show_txt.insert("end", f"{self.datas[0][0]} : {add_list[0]}, {self.datas[0][1]} : {add_list[1]} are in your {self.__class__.__name__}.")
-                # print(f"Your added data [{add_list[0]}, {add_list[1]}] are already in {self.__class__.__name__}")
-            else:
-                # self.txt_area.insert(END, f"Your data is added as\n\n {', '.join(word.strip() for word in self.datas[0])}\n", "success")
-                # self.txt_area.insert(END, f" {', '.join(item for item in add_list)}", "success")
-
-                self.show_txt.config(fg="green")
-                self.show_txt.insert(END, "Your data is added!")
-                self.tree_search.insert("", END, values=add_list)
-                # print("Your data is added")
-        else:   
-            if add_list[0] == "":
-                self.entries[0].focus_set()
-            else:
-                self.entries[1].focus_set()
-            self.show_txt.config(txt=f"PLease fill both {self.datas[0]} and self{self.datas[1]}!", foreground="red")
+                    self.show_txt.config(fg="red")
+                    self.show_txt.insert("end", f"{self.datas[0][0]} : {add_list[0]}, {self.datas[0][1]} : {add_list[1]} are in your {self.__class__.__name__}.")
+                    # print(f"Your added data [{add_list[0]}, {add_list[1]}] are already in {self.__class__.__name__}")
+                else:
+                    # self.txt_area.insert(END, f"Your data is added as\n\n {', '.join(word.strip() for word in self.datas[0])}\n", "success")
+                    # self.txt_area.insert(END, f" {', '.join(item for item in add_list)}", "success")
+                    
+                    self.show_txt.config(fg="green")
+                    self.show_txt.insert(END, "Your data is added!")
+                    self.tree_search.insert("", END, values=add_list)
+                    self.datas.append(add_list)
+                    self.save_datas()
+                    # print("Your data is added")
+            else:   
+                if add_list[0] == "":
+                    self.entries[0].focus_set()
+                else:
+                    self.entries[1].focus_set()
+                self.show_txt.config(txt=f"PLease fill both {self.datas[0]} and self{self.datas[1]}!", foreground="red")
 
     # Edit & Delete Frame 3
     def next_Catego(self):
@@ -800,13 +841,16 @@ class EVcars():
                 .grid(row=0, column=0, padx=5, pady=5, ipadx=5, ipady=5, sticky="w")
 
         
-            self.cars_img = ["./Project/brands/bmw.png", "./Project/brands/nissan.png", "./Project/brands/tesla.png", "./Project/brands/ford.png", "./Project/brands/rolls-royce.png", "./Project/brands/mercedes-benz.png", "./Project/brands/toyota.png", "./Project/brands/audi.png"]
+            # self.cars_img = ["./Project/brands/bmw.png", "./Project/brands/nissan.png", "./Project/brands/tesla.png", "./Project/brands/ford.png", "./Project/brands/rolls-royce.png", "./Project/brands/mercedes-benz.png", "./Project/brands/toyota.png", "./Project/brands/audi.png"]
+            brands_path = "./Project/brands/"
+            self.cars_img = [img for img in os.listdir(brands_path)]
 
             self.ico_frame = Frame(self.brands_main_frame, background="skyblue", relief="raised")
             self.ico_frame.grid(row=1, column=0, columnspan=10, rowspan=10, ipadx=10, ipady=100, padx=150, sticky="n")
 
-            names = [name.split("/")[-1][:-4].upper() for name in self.cars_img]
-            images = [PhotoImage(file=image) for image in self.cars_img]
+            # names = [name.split("/")[-1][:-4].upper() for name in self.cars_img]
+            names = [name[:-4].upper() for name in self.cars_img]
+            images = [PhotoImage(file=brands_path+image) for image in self.cars_img]
 
             for i, car in enumerate(images):
                 label =Label(self.ico_frame, image=car, background="skyblue", relief="solid", cursor="hand2")
@@ -815,11 +859,12 @@ class EVcars():
             # self.window.mainloop()
         else:
             self.info_labl.config(text="Your data is empty.\n File is not loaded yet!")
+        # self.schedule_next_image()
         self.window.mainloop() # if I don't add this logos will not display
 
     def show_icon(self,name):
         self.brands_main_frame.grid_forget()
-
+        # self.schedule_next_image() # got run one time only
         self.ico_main_frame = Frame(self.window)
         self.ico_main_frame.grid(row=0, column=0, sticky="nsew")
         self.ico_main_frame.columnconfigure(7, weight=1)
@@ -827,7 +872,8 @@ class EVcars():
 
         models_count = len([row[1] for row in self.datas[1:] if name in row])
 
-        self.ico_back = Button(self.ico_main_frame, text="<< Back", bg="blue",fg="white", command=lambda: [self.ico_main_frame.destroy(), self.show_cars_info_ico()])
+        self.ico_back = Button(self.ico_main_frame, text="<< Back", bg="blue",fg="white",\
+                                command=lambda: [self.pause_slideshow(), self.ico_main_frame.destroy(), self.show_cars_info_ico()]) # need to cancel after callbacks first, if not it will keep running although it was destroyed
         self.ico_back.grid(row=0, column=0, padx=5, pady=5, ipadx=5, ipady=5, sticky=W)
 
         self.brand_name = Label(self.ico_main_frame, text=f"{name} ({models_count})" , font=('', 12, 'bold'))
@@ -837,54 +883,88 @@ class EVcars():
         # print(os.path.exists(path))
         self.load_images(path)
         self.img_counter = 0
+        self.action_on = False # to toggle button
+
         self.image_display() # 6/3/24
 
+        # self.next_ico()
+    #     self.update_image(self.img_counter)
+    #     # self.window.after(200, self.next_ico)
+
+            
+
     def image_display(self): # 6/3/24
+
+        self.schedule_next_image() # got it right , I think I have to put it in image displaying frame
         self.model = [row for row in self.datas[1:] if self.img_modl[self.img_counter][1] in row] # [[]]
 
         # Button(self.root, text=" < ", font=('', 10, 'bold'), background="skyblue", command=self.prev_ico).grid(row=2, column=4, padx=5, pady=5, ipadx=5, ipady=5)
         # Button(self.root, text=" > ", font=('', 10, 'bold'), background="skyblue", command=self.next_ico).grid(row=2, column=7, padx=5, pady=5, ipadx=5, ipady=5, sticky=W)
 
         self.ico_frame1 = Frame(self.ico_main_frame, width=50, height=20, background="skyblue", borderwidth=2, relief="solid")
-        self.ico_frame1.grid(row=1, column=7, padx=40, pady=10, sticky="s")
+        self.ico_frame1.grid(row=1, column=7, padx=40, sticky="s")
         self.ico_frame1.columnconfigure([7,8], weight=2)
 
         self.ico = Label(self.ico_frame1, image=self.img_modl[self.img_counter][0], background="skyblue", cursor="hand2")
         self.ico.grid(row=1, column=7, pady=10, sticky=NSEW)
         # self.ico.bind("<Button-1>", lambda event, a=self.img_modl[self.img_counter][1]: self.img_info(a))
-        self.action_on = False # to toggle button
+
+        # self.action_on = False # to toggle button
         self.ico.bind("<Button-1>", lambda event: self.img_info())
  
-        Button(self.ico_frame1, text=" < ", font=('', 15, 'bold'), activebackground="skyblue", command=self.prev_ico).grid(row=2, column=0, padx=5, pady=5, ipadx=5, ipady=5, sticky=W)
+        back_ico = PhotoImage(file="./Project/frame_logo/back.png")
+        Button(self.ico_frame1, text=" < ", image=back_ico, compound="none",background="skyblue", borderwidth=0, activebackground="skyblue", command=self.prev_ico).grid(row=2, column=0, padx=5, ipadx=5, ipady=5, sticky=W)
         
         self.ico_name = Label(self.ico_frame1, text=f"{self.img_counter+1}.   {self.img_modl[self.img_counter][1]} ( ${int(self.model[0][-1]):,.0f} )", background="skyblue", font=7)
-        self.ico_name.grid(row=2, column=7, sticky="s") 
+        self.ico_name.grid(row=2, column=7, sticky="n") 
 
-        Button(self.ico_frame1, text=" > ", font=('', 15, 'bold'), activebackground="skyblue", command=self.next_ico).grid(row=2, column=8, padx=5, pady=5, ipadx=5, ipady=5, sticky=E)
+        next_ico = PhotoImage(file="./Project/frame_logo/next.png")
+        Button(self.ico_frame1, text=" > ", image=next_ico, compound="none", background="skyblue", borderwidth=0, activebackground="skyblue", command=self.next_ico).grid(row=2, column=8, padx=5, ipadx=5, ipady=5, sticky=E)
 
         self.txt_frame = Frame(self.ico_main_frame, width=80, borderwidth=2, relief="solid", background="skyblue")
         self.txt_frame.grid(row=5, column=5, padx= 10, ipadx=20, sticky=EW)
-
+        
         for i, column in enumerate(self.datas[0][1:7]):
             Label(self.txt_frame, text=column, justify='left',background="skyblue").grid(row=i , column=0, sticky=W, padx=5, pady=5)
-            Label(self.txt_frame, text=f"- {self.model[0][i]}", justify='left',background="skyblue", wraplength=100).grid(row=i, column=1, sticky=W, padx=20,pady=5)
+            Label(self.txt_frame, text=f"- {self.model[0][i+1]}", justify='left',background="skyblue", wraplength=100).grid(row=i, column=1, sticky=W, padx=20,pady=5)
           
         for i, column in enumerate(self.datas[0][7:]):
             Label(self.txt_frame, text=column, background="skyblue").grid(row=i, column=3, sticky=E, padx=20, pady=5)
             Label(self.txt_frame, text=f"- {self.model[0][7:][i]}", justify='left', background="skyblue").grid(row=i, column=4, sticky=W, pady=5)
         
         self.txt_frame.grid_forget()
-        # self.root.mainloop()
+        # self.schedule_next_image()
+        self.window.mainloop()
 
     def img_info(self):
         self.action_on = not self.action_on # toggling using boolean
         if self.action_on:
             self.txt_frame.grid(row=4, column=7, ipadx=50)
+            self.pause_slideshow()
         else:
             self.txt_frame.grid_forget()
+            self.resume_slideshow()
+
+    def pause_slideshow(self):
+        # Cancel the scheduled image change
+        if self.after_id:
+            self.window.after_cancel(self.after_id)
+            self.after_id = None
+
+    def resume_slideshow(self):
+        # Schedule the next image change
+        if not self.after_id:
+            self.after_id = self.window.after(1500, self.next_ico)
+
+    def schedule_next_image(self): # still testing
+
+        # Automatically change image after %ms
+        self.after_id = self.window.after(1800, self.next_ico) # 1.5s
+
 
     def next_ico(self):
 
+        self.pause_slideshow() # if it isn't added, the speed faster and got some bug
         self.img_counter += 1
         if self.img_counter == len(self.img_modl):
             self.img_counter = 0
@@ -892,9 +972,15 @@ class EVcars():
         self.ico_frame.destroy()
         self.txt_frame.destroy()
         self.image_display() # 6/3/24
+
+        # self.schedule_next_image()
+
+        
         
 
     def prev_ico(self):
+
+        self.pause_slideshow() # need to pause first
         if 0 < self.img_counter < len(self.img_modl):
             self.img_counter -= 1
         else:
@@ -903,6 +989,7 @@ class EVcars():
         self.ico_frame.destroy()
         self.txt_frame.destroy()
         self.image_display() # 6/3/24
+
         # print(self.img_counter)
 
     def load_images(self, path):
@@ -911,7 +998,7 @@ class EVcars():
         model_names = []
         for image in images_dir:
             # I didn't use this for now yet
-            Image.open(path+image).resize((420,270)).save(path+image) # to automatically resize but you will need PIL module
+            Image.open(path+image).resize((400,250)).save(path+image) # to automatically resize but you will need PIL module
             
             images.append(PhotoImage(file=path+image))
             model_names.append(image[:-4])
